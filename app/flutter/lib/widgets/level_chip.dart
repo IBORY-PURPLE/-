@@ -47,17 +47,18 @@ class LevelChip extends StatelessWidget {
           LevelChipKind.hold => S.chipHold,
           LevelChipKind.excluded => S.chipExcluded,
         };
+    // 폭은 항상 내용 폭 — Container.alignment(=Align, widthFactor 없음)는 폭이 유한한 부모(Wrap · Column) 안에서 전폭으로 늘어난다
+    // (2026-09-14 브라우저 실측: /region/:code 헤더의 칩이 전폭 막대). Center(widthFactor: 1) 은 Row·Wrap 어디서나 내용 폭.
     return Container(
       height: 24,
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(MalgilShape.cornerSmall),
         // CSS 는 dashed 테두리 — Flutter 기본 Border 는 점선 미지원이라 실선 outline 으로 대체(추정 · 시각 차 미미)
         border: dashed ? Border.all(color: MalgilColors.outline) : null,
       ),
-      child: Text(text, style: MalgilType.labelMedium.copyWith(color: ink, letterSpacing: 0)),
+      child: Center(widthFactor: 1, child: Text(text, style: MalgilType.labelMedium.copyWith(color: ink, letterSpacing: 0))),
     );
   }
 }
@@ -69,11 +70,11 @@ class Badge89 extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         height: 24,
         padding: const EdgeInsets.symmetric(horizontal: 8),
-        alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: MalgilColors.map89Border, width: 1.5),
         ),
-        child: Text(S.badge89, style: MalgilType.labelSmall.copyWith(color: MalgilColors.onSurface)),
+        // LevelChip 과 같은 이유로 Center(widthFactor: 1) — Wrap 안에서도 내용 폭
+        child: Center(widthFactor: 1, child: Text(S.badge89, style: MalgilType.labelSmall.copyWith(color: MalgilColors.onSurface))),
       );
 }

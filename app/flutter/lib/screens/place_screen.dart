@@ -1,10 +1,10 @@
 // /place/:id — Docs/mockup/04_place.html 과 1:1.
-//  히어로 KtoImage(16:9 · contain 기본 · Type3 면 캡션 「· 변경금지(Type3)」) · 제목 · 주소 ·
+//  히어로 KtoImage(16:9 · contain 기본 · Type3 면 캡션 「· 변경금지(Type3)」 · 이미지 없으면 메뉴 텍스트 히어로 — PRD F4 · 회귀 #4) · 제목 · 주소 ·
 //  「This region: Lv」 LevelChip + why ▸(/map) · 「Korean you'll use here」(음식점 메뉴 칩) · About(overview · Read more) ·
 //  운영 정보(있는 것만) · 동네 말벗 섹션(MalbeotSection compact — Local companion 카드 자리 · kctg.or.kr) · 「I visited here」 체크 · 푸터
 //  ★ ApiClient.place(id) 1콜 → contenttypeid 39 일 때만 placeIntro(id,'39') 1콜 추가. 렌더 시점 호출 · 저장 없음.
 //  ★ 지역 급수는 자산에서: lDongRegnCd(2, 세종은 5) + lDongSignguCd(3) → code → sourceRegionFor (일반구면 parent 시)
-//  상태: 로딩 · 404 not_found 「This place is no longer listed」 · quota 배너 · error + Retry
+//  상태: 로딩 · 404 not_found 「This place is no longer listed」 · quota 배너(일일 한도만 — 워커 rate_limited 429 는 error + Retry) · error + Retry
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -138,9 +138,10 @@ class PlaceScreenState extends State<PlaceScreen> {
         actionLabel: S.back,
         onAction: () => _back(context),
       );
-    } else if (c is ApiQuota) {
+    } else if (c is ApiQuota && c.isDailyQuota) {
       body = StateViews.quota(asOf: a.meta.asOf);
     } else if (c is ApiError || c is! ApiOk || c.items.isEmpty) {
+      // rate_limited(429 · 워커 IP 제한)도 여기로 — 한도 배너가 아니라 Retry
       body = StateViews.error(onRetry: reload);
     } else {
       final common = c.items.first;
@@ -151,7 +152,8 @@ class PlaceScreenState extends State<PlaceScreen> {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (i is ApiQuota) StateViews.quota(),
+          if (i is ApiQuota && i.isDailyQuota) StateViews.quota(),
+          if (i is ApiQuota && !i.isDailyQuota) StateViews.error(onRetry: reload),
           _PlaceBody(
             common: common,
             intro: introItem,
@@ -229,17 +231,17 @@ class _PlaceBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (img.isNotEmpty)
-          KtoImage(
-            key: const Key('hero'),
-            url: img,
-            cpyrhtDivCd: cpy,
-            label: _s('title'),
-            aspectRatio: 16 / 9,
-            borderRadius: 0,
-            captionSmall: false,
-            captionSuffix: KtoImage.heroCaptionSuffix(cpy),
-          ),
+        // 이미지가 없어도 히어로 자리는 유지 — 메뉴 텍스트(firstmenu · treatmenu 앞 3개), 메뉴도 없으면 제목 (PRD F4 · TSD §9 MenuTextHero)
+        KtoImage(
+          key: const Key('hero'),
+          url: img.isEmpty ? null : img,
+          cpyrhtDivCd: cpy,
+          label: menu.isNotEmpty ? menu.take(3).join(' / ') : _s('title'),
+          aspectRatio: 16 / 9,
+          borderRadius: 0,
+          captionSmall: false,
+          captionSuffix: KtoImage.heroCaptionSuffix(cpy),
+        ),
         Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

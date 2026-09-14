@@ -67,7 +67,7 @@ function draw() {
       <div class="body-small muted ko">${i.addr1}</div>
       <div class="label-small muted" style="margin-top:4px">${TYPE[String(i.contenttypeid)]}${i.lclsSystm2 ? ' · ' + i.lclsSystm2 : ''}</div></div>
     </a>`;
-  }).join('') + `<div class="footer-source">${items.length} of ${F.totalCount} listings (shopping excluded) · areaBasedList2 · fetched ${F.fetchedAt}</div>`;
+  }).join('') + `<div class="footer-source">${items.length} shown · ${F.totalCount} in the public list (shopping and other types not shown) · areaBasedList2 · fetched ${F.fetchedAt}</div>`;
 }
 draw();
 </script>

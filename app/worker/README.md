@@ -1,6 +1,6 @@
 # 말길 워커 (Cloudflare Workers)
 
-Flutter Web이 **공사 인증키를 노출하지 않고** TourAPI 4.0 을 실시간 호출하게 하는 단일 워커.
+Flutter Web이 **공사 인증키를 노출하지 않고** 공사 관광정보 API(KorService2)를 실시간 호출하게 하는 단일 워커.
 정적 자산(`/*`) + API 프록시(`/api/*`) + cron(매일 1회 호출 이력)을 한 워커에 담는다.
 
 ```

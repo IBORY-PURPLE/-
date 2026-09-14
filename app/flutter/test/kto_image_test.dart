@@ -1,5 +1,5 @@
 // KtoImage — 앱 유일 이미지 위젯 규칙: Type1 만 cover · 그 외 contain · 캡션 자동 · url 없으면 텍스트 히어로 ·
-// visitkorea http → https 승격 · CORS 없는 공사 서버를 위해 <img> 폴백 전략
+// visitkorea http → https 승격 · CORS 없는 공사 서버를 위해 처음부터 <img> 요소(prefer — fallback 은 실패하는 fetch 를 한 번 더 보낸다)
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:malgil/i18n/strings_en.dart';
@@ -23,7 +23,7 @@ void main() {
     expect(KtoImage.heroCaptionSuffix('Type1'), '');
   });
 
-  testWidgets('Type3 → contain + 검정 바탕 · Type1 → cover · <img> 폴백 전략 · https 승격 · 캡션', (t) async {
+  testWidgets('Type3 → contain + 검정 바탕 · Type1 → cover · <img> prefer 전략 · https 승격 · 캡션', (t) async {
     await t.pumpWidget(const MaterialApp(
       home: Column(children: [
         KtoImage(key: Key('t3'), url: 'http://tong.visitkorea.or.kr/x.jpg', cpyrhtDivCd: 'Type3', width: 96, height: 72),
@@ -37,7 +37,7 @@ void main() {
     expect(img('t3').fit, BoxFit.contain);
     expect(img('t1').fit, BoxFit.cover);
     for (final k in ['t3', 't1']) {
-      expect((img(k).image as NetworkImage).webHtmlElementStrategy, WebHtmlElementStrategy.fallback, reason: k);
+      expect((img(k).image as NetworkImage).webHtmlElementStrategy, WebHtmlElementStrategy.prefer, reason: k);
     }
     expect((img('t3').image as NetworkImage).url, 'https://tong.visitkorea.or.kr/x.jpg');
     expect(find.text(S.sourceCaption), findsNWidgets(2));

@@ -1,6 +1,7 @@
 // ① PlacesScreen — 픽스처(places_27200 · 2026-09-14 실응답 형태) 주입: 카드 수 = 12·14·15·39 건수 · 유형/대분류 칩 필터 ·
 //    급수 배지 없음(PRD F5) · Type3 → contain · Type1 → cover · 이미지 없음 → 텍스트 히어로 · 1콜만
 // ② quota → 배너 · error → Retry 배너 · 직전 성공 응답이 있으면 「Showing listings from N min ago」 + 목록 유지
+//    quota 도 직전 목록 유지(회귀 #6) · rate_limited(워커 IP 제한 429)는 한도 배너가 아니라 error + Retry · 빈 items(회귀 #2) → 빈 상태
 // 카드 탭 → /place/:id (push) · 상세 ← → 목록(필터 유지) · why ▸ → /map
 import 'dart:convert';
 import 'dart:io';
@@ -110,11 +111,14 @@ void main() {
     expect(find.text(a.byCode['27200']!.reasonEn), findsOneWidget);
     expect(find.byType(LevelChip), findsOneWidget); // 헤더 1개뿐 — 카드에는 없다
     expect(t.widget<LevelChip>(find.byType(LevelChip)).kind, LevelChipKind.lv3);
+    // Wrap 안에서도 내용 폭 — 전폭 막대 회귀(2026-09-14 브라우저 실측: 「Lv3」 칩이 x=16→484)
+    expect(t.getSize(find.byType(LevelChip)).width, lessThan(100));
+    expect(t.getSize(find.byType(LevelChip)).height, 24);
     expect(find.textContaining('Live · fetched '), findsOneWidget);
     expect(find.textContaining('출처: ⓒ한국관광공사'), findsOneWidget);
 
     expect(find.byType(PlaceCard), findsNWidgets(48));
-    expect(_footer(t), startsWith('48 of 70 listings (shopping excluded) · areaBasedList2 · fetched 2026-09-14 '));
+    expect(_footer(t), startsWith('48 shown · 70 in the public list (shopping and other types not shown) · areaBasedList2 · fetched 2026-09-14 '));
     expect(find.text('노이식탁'), findsOneWidget);
 
     // 이미지 규칙 (회귀 #4 · #5)
@@ -129,7 +133,7 @@ void main() {
     await _tapChip(t, 'type-39');
     await t.pumpAndSettle();
     expect(find.byType(PlaceCard), findsNWidgets(24));
-    expect(_footer(t), startsWith('24 of 70 listings'));
+    expect(_footer(t), startsWith('24 shown · 70 in the public list'));
     await _tapChip(t, 'type-15');
     await t.pumpAndSettle();
     expect(find.byType(PlaceCard), findsNWidgets(2));
@@ -170,6 +174,75 @@ void main() {
     expect(find.byKey(const Key('type-all')), findsNothing);
   });
 
+  testWidgets('② 성공 뒤 quota 429 → 한도 배너 + 직전 목록 유지 · Retry 없음 · 칩 전환은 추가 호출 없음 (회귀 #6)', (t) async {
+    await t.binding.setSurfaceSize(const Size(500, 6000));
+    addTearDown(() => t.binding.setSurfaceSize(null));
+    var calls = 0;
+    final api = ApiClient(client: MockClient((_) async {
+      calls++;
+      return calls == 1 ? _ok(placesBody) : _quota();
+    }));
+    await t.pumpWidget(_app(a, api));
+    await t.pumpAndSettle();
+    expect(find.byType(PlaceCard), findsNWidgets(48));
+
+    await t.state<PlacesScreenState>(find.byType(PlacesScreen)).reload();
+    await t.pumpAndSettle();
+    expect(calls, 2);
+    expect(find.text(S.quotaTitle), findsOneWidget);
+    expect(find.textContaining('computed ${a.meta.asOf}'), findsOneWidget); // P-T05
+    expect(find.text(S.errorTitle), findsNothing);
+    expect(find.text(S.retry), findsNothing); // 한도는 Retry 없음 — 워커 60s 부정 캐시와 정합
+    expect(find.byType(PlaceCard), findsNWidgets(48));
+    expect(_footer(t), startsWith('48 shown · 70'));
+    expect(find.byKey(const Key('live-line')), findsOneWidget);
+    await _tapChip(t, 'type-39');
+    await t.pumpAndSettle();
+    expect(find.byType(PlaceCard), findsNWidgets(24));
+    expect(calls, 2);
+  });
+
+  testWidgets('② rate_limited 429(워커 IP 제한) → 한도 배너 아님 · error + Retry (TSD §8-3)', (t) async {
+    await t.binding.setSurfaceSize(const Size(500, 1200));
+    addTearDown(() => t.binding.setSurfaceSize(null));
+    final api = ApiClient(client: MockClient((_) async => http.Response(jsonEncode({'ok': false, 'kind': 'rate_limited', 'message': 'slow down'}), 429, headers: _json)));
+    await t.pumpWidget(_app(a, api));
+    await t.pumpAndSettle();
+    expect(find.text(S.quotaTitle), findsNothing);
+    expect(find.textContaining('1,000 calls'), findsNothing);
+    expect(find.text(S.errorTitle), findsOneWidget);
+    expect(find.text(S.retry), findsOneWidget);
+    expect(find.byType(PlaceCard), findsNothing);
+  });
+
+  testWidgets('② 빈 items(회귀 #2) → 「No places listed」 빈 상태 · 오류·한도 배너 아님 · Show all 은 추가 호출 없음', (t) async {
+    await t.binding.setSurfaceSize(const Size(500, 1200));
+    addTearDown(() => t.binding.setSurfaceSize(null));
+    var calls = 0;
+    final api = ApiClient(client: MockClient((_) async {
+      calls++;
+      return _ok('{"ok":true,"fetchedAt":"2026-09-14T09:33:00.000Z","remaining":"900","totalCount":0,"count":0,"code":"28155","type":null,"items":[]}');
+    }));
+    await t.pumpWidget(_app(a, api, code: '28155'));
+    await t.pumpAndSettle();
+    expect(calls, 1);
+    expect(find.text(S.emptyTitle), findsOneWidget);
+    expect(find.text(S.errorTitle), findsNothing);
+    expect(find.text(S.quotaTitle), findsNothing);
+    expect(find.byType(PlaceCard), findsNothing);
+    expect(find.byKey(const Key('type-all')), findsOneWidget);
+    expect(find.byKey(const Key('live-line')), findsOneWidget);
+    expect(find.byKey(const Key('places-footer')), findsNothing);
+    await t.tap(find.text(S.emptyAction));
+    await t.pumpAndSettle();
+    expect(calls, 1);
+    final all = _allText(t);
+    for (final banned in ['갈 수 없', "can't go", 'cannot go', 'Lv0', 'Lv6', 'legal criteria']) {
+      expect(all.contains(banned), false, reason: '금지어 「$banned」');
+    }
+    expect(all.contains(RegExp(r'\d+(\.\d+)?\s*%')), false, reason: '백분율 표기 금지');
+  });
+
   testWidgets('② error 502 → Retry 배너 → 재시도 성공 → 목록 · 이후 실패면 「N min ago」 + 목록 유지', (t) async {
     await t.binding.setSurfaceSize(const Size(500, 6000)); // 푸터까지 빌드되도록
     addTearDown(() => t.binding.setSurfaceSize(null));
@@ -192,7 +265,7 @@ void main() {
     expect(calls, 2);
     expect(find.text(S.errorTitle), findsNothing);
     expect(find.byType(PlaceCard), findsWidgets);
-    expect(_footer(t), startsWith('48 of 70'));
+    expect(_footer(t), startsWith('48 shown · 70'));
 
     // 직전 성공 응답 보존 — 다시 실패해도 목록은 남고 「Showing listings from 0 min ago.」
     fail = true;
@@ -202,7 +275,7 @@ void main() {
     expect(find.text(S.errorTitle), findsOneWidget);
     expect(find.text(S.errorCached(0)), findsOneWidget);
     expect(find.byType(PlaceCard), findsWidgets);
-    expect(_footer(t), startsWith('48 of 70'));
+    expect(_footer(t), startsWith('48 shown · 70'));
   });
 
   testWidgets('자산에 없는 코드 — 「Region not in the level table」 · 목록은 그대로', (t) async {

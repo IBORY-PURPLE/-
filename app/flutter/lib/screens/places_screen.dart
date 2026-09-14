@@ -5,7 +5,8 @@
 //  ★ ApiClient.places(code) 1콜 (type 미지정 → 서버가 12·14·15·39 만 남김). 칩 전환은 추가 호출 없음.
 //  ★ 목록 카드에는 급수 배지를 두지 않는다 (PRD F5 — 급수는 지역 단위, 장소 단위가 아니다)
 //  ★ 이미지는 KtoImage 로만 — Type1 만 cover, 그 외 contain (회귀 #5) · 이미지 없으면 텍스트 히어로 (회귀 #4)
-//  상태: 로딩 스켈레톤 · 빈 필터 · quota 배너 · error 배너 + Retry (직전 성공 응답이 있으면 그대로 두고 「N min ago」)
+//  상태: 로딩 스켈레톤 · 빈 필터 · quota 배너(일일 한도만) · error 배너 + Retry (직전 성공 응답이 있으면 그대로 두고 「N min ago」)
+//  ★ 워커 IP 레이트리밋 429(kind rate_limited)는 한도가 아니므로 quota 배너를 쓰지 않는다 — error + Retry (TSD §8-3 정직한 배너)
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -154,8 +155,8 @@ class PlacesScreenState extends State<PlacesScreen> {
     final children = <Widget>[
       _RegionHeader(region: region, code: widget.code),
       if (ok != null) _LiveLine(fetchedAt: ok.fetchedAt),
-      if (last is ApiQuota) StateViews.quota(asOf: a.meta.asOf),
-      if (last is ApiError)
+      if (last is ApiQuota && last.isDailyQuota) StateViews.quota(asOf: a.meta.asOf),
+      if (last is ApiError || (last is ApiQuota && !last.isDailyQuota))
         StateViews.error(
           cachedMinutes: _lastOkAt == null ? null : minutesSince(_lastOkAt!),
           onRetry: _loading ? null : reload,
@@ -329,7 +330,7 @@ class PlaceCard extends StatelessWidget {
       );
 }
 
-/// .footer-source — 「n of N listings (shopping excluded) · areaBasedList2 · fetched …」
+/// .footer-source — 「n shown · N in the public list (shopping and other types not shown) · areaBasedList2 · fetched …」
 class _Footer extends StatelessWidget {
   const _Footer({required this.text});
   final String text;

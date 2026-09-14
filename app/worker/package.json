@@ -1,14 +1,15 @@
 {
   "name": "malgil-worker",
   "version": "0.1.0",
-  "description": "말길 — Cloudflare Workers proxy for KTO TourAPI 4.0 + static assets",
+  "description": "말길 — Cloudflare Workers proxy for the public tourism API (KorService2) + static assets",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "hono": "^4.13.7"
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260914.1",
     "typescript": "^7.0.2",
+    "vitest": "^4.1.11",
     "wrangler": "^4.131.2"
   }
 }

@@ -3,7 +3,7 @@
 //  · 「Your stays」 한 줄(F8 — 자기신고 체류가 1건 이상일 때만 · 공식 통계 아님 꼬리) · 89곳 토글 · 지도(ChoroplethMap) · 범례 · SourceFooter
 //  ★ 레벨 카드의 N·M·K 는 자산 `요약` 값 그대로 (재계산 금지 — mockup.js summary 와 같은 정의)
 //  ★ 드롭다운은 ApiClient.ldong() 런타임 호출 (PRD F3). 실패·한도면 자산 `지역` 으로 조용히 폴백 (에러 화면 없음)
-//  compact(<840) = 시트를 바텀시트로 · expanded(≥840) = 지도 60% : 우측 패널 40%
+//  compact(<840) = 시트를 바텀시트로 · expanded(≥840) = 지도 : 우측 패널 = 6 : 4
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

@@ -1,7 +1,36 @@
 // AppState 저장·복원 — interests 토글 · stayCount · SharedPreferences 목으로 라운드트립(새 인스턴스 restore = 새로고침 유지) · 깨진 키 격리
+// 회귀 #7 — 저장소가 던지는 경우(localStorage 비활성 · 쓰기 실패) 메모리 폴백
 import 'package:flutter_test/flutter_test.dart';
 import 'package:malgil/state/app_state.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/types.dart' show GetAllParameters;
+
+/// 회귀 #7 — 브라우저가 localStorage 를 막았을 때(SecurityError)와 쓰기가 실패할 때(QuotaExceededError)를 흉내내는 저장소.
+/// getInstance 는 어떤 예외든 잡아 _completer 를 리셋하므로(shared_preferences 2.5.5) Exception 하위로 던진다.
+class _ThrowingStore extends SharedPreferencesStorePlatform with MockPlatformInterfaceMixin {
+  _ThrowingStore({this.readThrows = true});
+  final bool readThrows;
+
+  Future<Map<String, Object>> _read() async {
+    if (readThrows) throw Exception('SecurityError: localStorage disabled');
+    return <String, Object>{};
+  }
+
+  @override
+  Future<Map<String, Object>> getAll() => _read();
+  @override
+  Future<Map<String, Object>> getAllWithPrefix(String prefix) => _read();
+  @override
+  Future<Map<String, Object>> getAllWithParameters(GetAllParameters parameters) => _read();
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) => Future<bool>.error(Exception('QuotaExceededError'));
+  @override
+  Future<bool> remove(String key) => Future<bool>.error(Exception('QuotaExceededError'));
+  @override
+  Future<bool> clear() => Future<bool>.error(Exception('QuotaExceededError'));
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -86,6 +115,40 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString(AppState.keyInterests), '{"27200":["s2"]}');
+    });
+  });
+
+  group('회귀 #7 — 저장소 예외', () {
+    tearDown(() => SharedPreferences.setMockInitialValues({})); // 스토어 원복 (+ _completer 리셋)
+
+    test('getInstance 가 던지면 restore 는 예외 없이 메모리 상태 · 급수·방문·관심은 메모리에서 동작', () async {
+      SharedPreferences.setMockInitialValues({}); // _completer 리셋
+      SharedPreferencesStorePlatform.instance = _ThrowingStore();
+      final s = await AppState.restore();
+      expect(s.level, isNull);
+      s.setLevel(3);
+      expect(s.level, 3);
+      s.addVisit('36110', '2026-09-14');
+      s.toggleInterest('12730', 's2');
+      await Future<void>.delayed(Duration.zero);
+      expect(s.visits['36110'], ['2026-09-14']);
+      expect(s.hasInterest('12730', 's2'), true);
+      expect(s.stayCount, (regions: 1, days: 1));
+      s.clearLevel();
+      expect(s.level, isNull);
+    });
+
+    test('읽기는 되고 쓰기만 실패해도 메모리 값 유지 · 미처리 오류 없음', () async {
+      SharedPreferences.setMockInitialValues({});
+      SharedPreferencesStorePlatform.instance = _ThrowingStore(readThrows: false);
+      final s = AppState(prefs: await SharedPreferences.getInstance());
+      s.setLevel(4);
+      s.addVisit('27200', '2026-09-14');
+      s.toggleInterest('27200', 's2');
+      await Future<void>.delayed(Duration.zero);
+      expect(s.level, 4);
+      expect(s.visits['27200'], ['2026-09-14']);
+      expect(s.hasInterest('27200', 's2'), true);
     });
   });
 }
