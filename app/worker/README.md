@@ -14,7 +14,7 @@ cron 0 0 * * * (UTC 00:00 = KST 09:00) ──► ldongCode2 1콜 + 89곳 순환 
 ## 실행
 
 ```bash
-# 이 디렉터리(C:\Users\chewo\StudioProjects\malgil\worker)에서
+# 이 디렉터리(C:\Users\chewo\StudioProjects\malgil\app\worker)에서
 npm run typecheck        # tsc --noEmit
 npm run dev              # wrangler dev --port 8787  (로그인 불필요, .dev.vars 의 KTO_KEY 사용)
 npm run deploy           # wrangler deploy  (Cloudflare 로그인 + `wrangler secret put KTO_KEY` 선행)

@@ -6,7 +6,7 @@
 ## 실행
 
 ```bash
-# 이 디렉터리(C:\Users\chewo\StudioProjects\malgil\flutter)에서
+# 이 디렉터리(C:\Users\chewo\StudioProjects\malgil\app\flutter)에서
 flutter pub get
 flutter analyze
 flutter test

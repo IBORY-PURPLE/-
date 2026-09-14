@@ -44,7 +44,7 @@
 │       ├── analyze_89_hypothesis.json
 │       └── analyze_89_culture.json
 │
-├── app/                    # ★ 정션 → C:\Users\chewo\StudioProjects\malgil (ASCII 경로)
+├── app/                    # 앱 코드 (저장소 전체가 ASCII 경로 C:\Users\chewo\StudioProjects\malgil)
 │   ├── flutter/            #   Flutter Web 앱
 │   └── worker/             #   Cloudflare Workers 프록시 (Hono) — 공사 API 키를 여기서만 보관
 │
@@ -61,7 +61,7 @@
 └── CLAUDE.md               # 프로젝트 규칙 (문서 위계 · data/ 규칙 · 자기설명 규칙)
 ```
 
-> `app/`이 정션이므로 **`git clean -d`를 쓰지 마세요** — 실파일이 지워집니다.
+> 저장소는 **ASCII 경로에 둡니다** — Flutter·Node 도구가 한글 경로에서 깨집니다. VS Code는 저장소 루트를 열고 F5(워커 → Chrome 핫 리로드).
 
 ---
 

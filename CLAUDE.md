@@ -54,10 +54,9 @@ data/AI/analyze_visitor_gap.py  →   data/인간/analyze_visitor_gap.json
 
 ### 앱 폴더 (`app/`)
 
-`app/`은 **정션(junction)** 입니다 — 실파일은 `C:\Users\chewo\StudioProjects\malgil\`(ASCII 경로)에 있고, Flutter·Node 도구가 한글 경로에서 깨지는 것을 피하려고 이렇게 둡니다. git은 정션 안 파일을 일반 파일로 추적합니다.
+저장소 전체가 ASCII 경로 **`C:\Users\chewo\StudioProjects\malgil\`** 에 있고, `app/`은 그 안의 일반 폴더입니다. Flutter·Node 도구가 한글 경로에서 깨지므로 **저장소를 한글 경로로 옮기지 않습니다**(2026-09-14까지는 한글 경로 저장소 + `app/` 정션 구조였고, 이날 한 곳으로 합쳤습니다).
 
 - `app/flutter/` Flutter Web 앱 · `app/worker/` Cloudflare Workers 프록시(Hono)
-- ⚠️ **`git clean -d` 금지** — 정션을 따라 들어가 실파일을 지웁니다.
 - 브랜치마다 [Docs/개발일지.md](Docs/개발일지.md)에 항목을 남깁니다(무엇 · 왜 · 실행법 · 확인한 것 · 남은 것).
 
 여러 데이터셋을 한 파일에 담는 형태는 이렇습니다.

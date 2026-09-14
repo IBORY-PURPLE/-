@@ -39,7 +39,7 @@ data/AI/_raw/c1_visitor_raw.json
 # === 경계 원본 parquet (vuski/admdongkor 에서 재다운로드 가능) ===
 *.parquet
 
-# === 앱 (app/ 는 C:\Users\chewo\StudioProjects\malgil 을 가리키는 정션) ===
+# === 앱 (app/flutter · app/worker 빌드·의존성·로컬 비밀) ===
 app/flutter/build/
 app/flutter/.dart_tool/
 app/flutter/.flutter-plugins*
