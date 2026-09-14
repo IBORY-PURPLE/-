@@ -1,7 +1,8 @@
 // ③ PlaceScreen — 픽스처(place_2842743 노이식탁 · 2026-09-14 실응답 형태): Korean 카드 칩 4개 · Try 문장 · 운영 정보 · 「This region: Lv3」 ·
 //    히어로 Type3 → contain + 「· 변경금지(Type3)」 캡션 · 방문 체크 → AppState.addVisit · 푸터 detailCommon2 + detailIntro2
 // ④ 관광지(12) → Korean 카드 없음 · intro 미호출 · 푸터 detailCommon2 만
-// ⑤ 404 not_found → 「This place is no longer listed」 · quota → 배너 · error → Retry
+// ⑤ 404 not_found → 「This place is no longer listed」 · quota → 배너 · rate_limited → error + Retry · error → Retry
+// 이미지 없음 → 메뉴 텍스트 히어로(회귀 #4 · PRD F4) — 메뉴 없으면 제목
 import 'dart:convert';
 import 'dart:io';
 
@@ -183,15 +184,26 @@ void main() {
     expect(footer, isNot(contains('detailIntro2')));
   });
 
-  testWidgets('이미지 없음 → 히어로 없음 · 급수 미상 코드 → 지역 칩 없음 · 세종 5자리 코드', (t) async {
+  testWidgets('이미지 없음 → 메뉴 텍스트 히어로(회귀 #4) · 급수 미상 코드 → 지역 칩 없음 · 세종 5자리 코드', (t) async {
     await t.binding.setSurfaceSize(const Size(500, 2000));
     addTearDown(() => t.binding.setSurfaceSize(null));
     await t.pumpWidget(_app(a, _api(commonPatch: {'firstimage': '', 'firstimage2': '', 'lDongRegnCd': '99', 'lDongSignguCd': '999'})));
     await t.pumpAndSettle();
-    expect(find.byKey(const Key('hero')), findsNothing);
-    expect(find.byType(Image), findsNothing);
+    final hero = find.byKey(const Key('hero'));
+    expect(hero, findsOneWidget);
+    expect(find.byType(Image), findsNothing); // 깨진 이미지 없음
+    expect(t.widget<KtoImage>(hero).url, isNull);
+    expect(find.descendant(of: hero, matching: find.text('노이스테이크 / 새우 크림 리조또 / 해산물 칠리 오일 파스타')), findsOneWidget);
+    expect(find.textContaining('변경금지'), findsNothing); // 텍스트 히어로에는 출처 캡션이 붙지 않는다
+    expect(find.text(S.sourceCaption), findsNothing);
     expect(find.byKey(const Key('region-chip')), findsNothing);
     expect(find.byKey(const Key('visited-here')), findsOneWidget); // 코드는 있으니 자기신고는 가능
+
+    // 메뉴가 없는 유형(관광지 12)이면 제목이 히어로 텍스트
+    await t.pumpWidget(_app(a, _api(commonPatch: {'contenttypeid': '12', 'title': '고산골', 'firstimage': '', 'firstimage2': ''}), key: const Key('sights-noimg')));
+    await t.pumpAndSettle();
+    expect(find.descendant(of: find.byKey(const Key('hero')), matching: find.text('고산골')), findsOneWidget);
+    expect(find.byType(Image), findsNothing);
 
     await t.pumpWidget(_app(a, _api(commonPatch: {'lDongRegnCd': '36110', 'lDongSignguCd': '36110'}), key: const Key('sejong')));
     await t.pumpAndSettle();
@@ -209,6 +221,17 @@ void main() {
     expect(find.text(S.placeNotListed), findsOneWidget);
     expect(find.text(S.placeNotListedBody), findsOneWidget);
     expect(find.text(S.back), findsOneWidget);
+    expect(find.byKey(const Key('place-title')), findsNothing);
+  });
+
+  testWidgets('rate_limited 429(워커 IP 제한) → 한도 배너 아님 · error + Retry (TSD §8-3)', (t) async {
+    await t.binding.setSurfaceSize(const Size(500, 1200));
+    addTearDown(() => t.binding.setSurfaceSize(null));
+    await t.pumpWidget(_app(a, _api(override: (_) => _err(429, 'rate_limited'))));
+    await t.pumpAndSettle();
+    expect(find.text(S.quotaTitle), findsNothing);
+    expect(find.text(S.errorTitle), findsOneWidget);
+    expect(find.text(S.retry), findsOneWidget);
     expect(find.byKey(const Key('place-title')), findsNothing);
   });
 

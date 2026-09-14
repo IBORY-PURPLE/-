@@ -8,7 +8,6 @@ abstract final class S {
   static const String appTitleKo = '말길';
   static const String appTitleEn = 'Malgil';
   static const String sourceCaption = 'ⓒ한국관광공사'; // KtoImage 자동 캡션
-  static const String computedPrefix = 'Computed '; // + 산출일
 
   // ── 랜딩 (01_landing.html) ──
   static const String landingHeadline = 'Where does your Korean actually work?';
@@ -19,7 +18,7 @@ abstract final class S {
 
   /// 급수 카드 4장: (급수 숫자, 라벨, TOPIK, 설명)
   static const List<LevelCardText> levelCards = [
-    LevelCardText(2, 'Lv1–2', 'TOPIK 1–2 or none',
+    LevelCardText(2, 'Lv1~2', 'TOPIK 1–2 or none',
         'Places where foreign visitors already come. Survival Korean: ordering, buying.'),
     LevelCardText(3, 'Lv3', 'TOPIK 3',
         'Metropolitan districts and well-visited cities where staff simply answer in Korean.'),
@@ -29,7 +28,7 @@ abstract final class S {
 
   // ── 푸터 (01_landing.html .footer-source) ──
   static String footerSource(String asOf) =>
-      'Regional levels from public data: visitor mix (ⓒ한국관광공사), Korean-only listings, resident age (행정안전부 주민등록). Computed $asOf.';
+      'Regional levels from public data: visitor mix (ⓒ한국관광공사), Korean-language listing count, resident age (행정안전부 주민등록). Computed $asOf.';
   static const String footerBoundaries = 'Boundaries: 통계청 SGIS via vuski/admdongkor (CC BY 4.0).';
 
   // ── 급수 칩 (mockup.js LV_LABEL · fillSheet lvText) ──
@@ -46,8 +45,14 @@ abstract final class S {
   /// 잠긴 지역 문구 (mockup.js lockedText) — 「방문 불가」류 표현 금지, 「you can still visit」를 유지
   static String lockedText(String lv) => 'Opens at $lv — you can still visit; expect Korean for transport and ordering';
   static String holdText(int months) =>
-      'Reorganized on 2026-07-01 — only $months month of visitor data. Level pending.';
+      'Reorganized on 2026-07-01 — only $months ${months == 1 ? 'month' : 'months'} of visitor data. Level pending.';
   static const String excludedText = 'Fewer than 20 listed places — not enough to draw a map.';
+
+  /// whyText 폴백 조각 (근거_en 이 빈 행에서만) — 자산 근거_en 과 같은 표기: 「4 foreign visitors per 1,000 · county · 4 in 10 residents aged 65+ · 106 Korean-language listings」
+  static String whyForeign(int per1000) => '$per1000 foreign visitors per 1,000';
+  static const Map<String, String> whyGubun = {'자치구': 'metropolitan district', '시': 'city', '군': 'county'};
+  static String whyAged65(int in10) => '$in10 in 10 residents aged 65+';
+  static String whyListings(int n) => '$n Korean-language listings';
 
   // ── 상태 (05_states.html) ──
   static const String emptyTitle = 'No places listed in this category';
@@ -82,7 +87,7 @@ abstract final class S {
   static const String legendHold = 'On hold (reorganized 2026-07)';
   static const String legendExcluded = 'Not enough data';
   static const String legendNote =
-      'Colour = the TOPIK level at which a region opens, from public visitor and population data. Not a measure of on-site foreign-language service.';
+      'Color = the TOPIK level at which a region opens, from public visitor and population data. Not a measure of on-site foreign-language service.';
   static const String pickRegionHint = 'Tap a region on the map, or pick a district above, to see its details.';
 
   // ── 지역 시트 (mockup.js fillSheet) ──
@@ -129,8 +134,6 @@ abstract final class S {
   // ── 공통 내비게이션 ──
   static const String backToLanding = 'Choose level';
   static const String back = 'Back';
-  static const String mapTitle = 'Level map';
-  static const String regionTitle = 'Region';
   static const String placeTitle = 'Place';
 
   // ── 장소 목록 (03_places.html) ──
@@ -155,8 +158,9 @@ abstract final class S {
     'C01': 'Course',
   };
 
+  /// total = 상류 전체 유형 건수(쇼핑 포함) — 괄호는 「보이지 않는 것」을 설명한다 (total 에 걸리지 않게)
   static String placesFooter(int shown, int total, String fetchedAt) =>
-      '$shown of $total listings (shopping excluded) · areaBasedList2 · fetched $fetchedAt';
+      '$shown shown · $total in the public list (shopping and other types not shown) · areaBasedList2 · fetched $fetchedAt';
   static const String unknownRegion = 'Region not in the level table';
 
   // ── 장소 상세 (04_place.html) ──

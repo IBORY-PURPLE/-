@@ -4,7 +4,7 @@
  * 엔드포인트 ↔ 공사 오퍼레이션 (KorService2)
  *   GET /api/health                              — (상류 호출 없음)
  *   GET /api/ldong[?regn=NN]                     — ldongCode2        캐시 3600s
- *   GET /api/places?code=NNNNN[&type=..][&rows=..] — areaBasedList2  캐시 300s
+ *   GET /api/places?code=NNNNN[&type=..]         — areaBasedList2    캐시 300s (rows 는 서버 고정 1000 · 공개 파라미터 아님)
  *   GET /api/place/:id                           — detailCommon2     캐시 300s
  *   GET /api/place/:id/intro?type=NN             — detailIntro2      캐시 300s
  *   cron 0 0 * * *                               — ldongCode2 1콜 + areaBasedList2 1콜(89곳 순환)

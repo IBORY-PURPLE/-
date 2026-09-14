@@ -27,12 +27,18 @@
   <title>말길 Malgil</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- 한글 글꼴 — CanvasKit 이 첫 프레임 뒤 fonts.gstatic.com 에서 Noto Sans KR 서브셋을 내려받는다(2026-09-14 실측: 콜드 캐시 첫 페인트 약 1초 □).
+       글꼴 번들은 용량 결정이라 보류하고, 연결(DNS·TLS)만 미리 열어 첫 서브셋 요청을 앞당긴다. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <!-- 정적 로딩 셸 (TSD §3 필수 조치 1) — 엔진 부팅 전에 앱 배경색·제목·스켈레톤을 즉시 페인트.
        색은 lib/theme/tokens.dart 와 같다: surface #f9f9fc · on-surface #191c20 · on-surface-variant #43474e
        · surface-container-high #e7e8ee · surface-container-low #f3f4f9 · outline-variant #c4c6cf -->
   <style>
     html, body { margin: 0; padding: 0; background: #f9f9fc; }
-    body { font-family: "Pretendard", "Noto Sans KR", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif; color: #191c20; -webkit-font-smoothing: antialiased; }
+    /* 셸은 아무 글꼴도 내려받지 않는다 — 시스템 글꼴만 (Flutter 본체는 Roboto + Noto Sans KR 서브셋을 런타임에 받는다) */
+    body { font-family: Roboto, system-ui, -apple-system, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; color: #191c20; -webkit-font-smoothing: antialiased; }
     #malgil-shell { position: fixed; inset: 0; background: #f9f9fc; z-index: 1; display: flex; justify-content: center; overflow: hidden; }
     #malgil-shell .col { width: 100%; max-width: 480px; display: flex; flex-direction: column; }
     #malgil-shell .bar { height: 64px; display: flex; align-items: center; gap: 6px; padding: 0 16px; }

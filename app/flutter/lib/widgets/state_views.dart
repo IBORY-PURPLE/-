@@ -28,7 +28,8 @@ abstract final class StateViews {
         padding: const EdgeInsets.fromLTRB(16, 56, 16, 16),
         child: Column(
           children: [
-            const Text('🗂️', style: TextStyle(fontSize: 40)),
+            // 이모지는 변이 선택자(U+FE0F) 없이 — 있으면 CanvasKit 이 Noto Color Emoji 서브셋을 더 받고 「Could not find a set of Noto fonts」 경고를 낸다 (2026-09-14 실측)
+            const Text('\u{1F5C2}', style: TextStyle(fontSize: 40)),
             const SizedBox(height: 8),
             Text(title, style: MalgilType.titleMedium, textAlign: TextAlign.center),
             Text(description, style: MalgilType.bodyMedium.copyWith(color: MalgilColors.onSurfaceVariant), textAlign: TextAlign.center),
@@ -39,7 +40,7 @@ abstract final class StateViews {
 
   /// 오류 배너 + Retry. [cachedMinutes] 가 있으면 「Showing listings from N min ago.」
   static Widget error({int? cachedMinutes, VoidCallback? onRetry}) => _Banner(
-        icon: '⚠️',
+        icon: '⚠', // ⚠ (U+FE0F 없이)
         isError: true,
         title: S.errorTitle,
         body: cachedMinutes == null ? S.errorNoCache : S.errorCached(cachedMinutes),

@@ -60,9 +60,10 @@ class KtoImage extends StatelessWidget {
           ColoredBox(color: cover ? MalgilColors.surfaceContainerHigh : const Color(0xFF111111)),
           Image.network(
             u,
-            // 공사 이미지 서버는 CORS 헤더(Access-Control-Allow-Origin)가 없다(2026-09-14 실측) → CanvasKit 의 fetch 가 실패하므로
-            // 그때는 <img> 요소로 그린다(fallback). 없으면 웹에서 모든 공사 이미지가 회색 박스가 된다.
-            webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+            // 공사 이미지 서버는 CORS 헤더(Access-Control-Allow-Origin)가 없다(2026-09-14 실측) → CanvasKit 의 fetch 는 항상 실패한다.
+            // fallback 은 매번 실패하는 fetch 를 한 번 더 보내고(이미지당 콘솔 오류 2줄 · 2026-09-14 브라우저 실측) <img> 로 넘어가므로
+            // 처음부터 <img> 요소로 그린다(prefer). never 면 웹에서 모든 공사 이미지가 회색 박스가 된다.
+            webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
             fit: cover ? BoxFit.cover : BoxFit.contain,
             alignment: Alignment.center,
             loadingBuilder: (context, child, progress) => progress == null ? child : _greyBox(),
@@ -89,16 +90,19 @@ class KtoImage extends StatelessWidget {
 
   Widget _greyBox() => const ColoredBox(color: MalgilColors.surfaceContainerHigh, child: SizedBox.expand());
 
+  /// 텍스트 히어로 — 썸네일(captionSmall)은 11px, 16:9 히어로는 titleMedium (메뉴 텍스트가 읽히는 크기)
   Widget _textHero() => Container(
         color: MalgilColors.surfaceContainerHigh,
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(6),
+        padding: EdgeInsets.all(captionSmall ? 6 : 16),
         child: Text(
           label ?? '',
           textAlign: TextAlign.center,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 11, height: 14 / 11, fontWeight: FontWeight.w500, color: MalgilColors.onSurfaceVariant),
+          style: captionSmall
+              ? const TextStyle(fontSize: 11, height: 14 / 11, fontWeight: FontWeight.w500, color: MalgilColors.onSurfaceVariant)
+              : MalgilType.titleMedium.copyWith(color: MalgilColors.onSurfaceVariant),
         ),
       );
 }

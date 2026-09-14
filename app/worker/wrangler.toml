@@ -1,5 +1,5 @@
 # 말길 (Malgil) — Cloudflare Workers 프록시 + 정적 자산 (단일 워커)
-#   Flutter Web ──► /api/*  ──► 공사 TourAPI (KorService2)   ※ 인증키는 워커 Secret에만
+#   Flutter Web ──► /api/*  ──► 공사 관광정보 API (KorService2)   ※ 인증키는 워커 Secret에만
 #             └──► /*      ──► [assets] 정적 파일 (SPA 폴백)
 #   cron 00:00 UTC (= KST 09:00) — 개발 기간 내 「매일 실시간 호출 이력」 확보 (TSD §8-2)
 

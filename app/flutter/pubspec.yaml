@@ -1,5 +1,5 @@
 name: malgil
-description: "A new Flutter project."
+description: "말길 Malgil — pick your TOPIK level and see which Korean regions open, from public tourism and population data."
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -20,6 +20,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  # 회귀 #7 테스트 — 저장소가 던지는 SharedPreferencesStorePlatform 목 (pubspec.lock 의 전이 버전과 같은 캐럿)
+  shared_preferences_platform_interface: ^2.4.2
+  plugin_platform_interface: ^2.1.8
 
 flutter:
   uses-material-design: true

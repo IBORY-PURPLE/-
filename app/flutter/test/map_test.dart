@@ -156,5 +156,12 @@ void main() {
       // 기초 행만 — 일반구(수원시 장안구)는 없음
       expect(sggFromAssets(a, '경기도').any((o) => o.code == '41111'), false);
     });
+    test('회귀 #3 — 세종·인천: ldong 이 빈 목록이면 자산 시군구로 · 3자리 155 → 28155', () {
+      expect(sidoFromAssets(a).any((o) => o.code == '12' && o.name == '전남광주통합특별시'), true);
+      expect(optionsFromLdong(const [], regn: '36'), isEmpty);
+      expect(sggFromAssets(a, '세종특별자치시').map((o) => o.code), contains('36110'));
+      expect(optionsFromLdong([{'code': '155', 'name': 'x'}], regn: '28').single.code, '28155');
+      expect(sggFromAssets(a, '인천광역시').map((o) => o.code), containsAll(['28125', '28155', '28275', '28290']));
+    });
   });
 }

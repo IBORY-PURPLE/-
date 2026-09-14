@@ -1,11 +1,11 @@
 {
-    "name": "malgil",
-    "short_name": "malgil",
+    "name": "말길 Malgil",
+    "short_name": "말길",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#f9f9fc",
+    "theme_color": "#f9f9fc",
+    "description": "Where does your Korean actually work? Pick your TOPIK level and see which regions open.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

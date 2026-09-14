@@ -102,6 +102,7 @@ void main() {
     expect(S.ordinal(21), '21st');
     expect(S.ordinal(112), '112th');
     const r = Region(code: '00000', sido: 's', nm: 'n', gubun: '군', lv: 'Lv5', reasonKo: '', reasonEn: '', share: 0.402, pb: 1, kor: 106, e65: 41.6, pop: 1, is89: true, months: 12, parent: null);
-    expect(RegionSheet.whyText(r), 'Foreign visitors 4 in 1,000 · County · Residents 65+: 4 in 10 · 106 places listed');
+    // 폴백 표기 = 자산 근거_en 과 동일 (구례군 근거_en 원문과 같은 형태)
+    expect(RegionSheet.whyText(r), '4 foreign visitors per 1,000 · county · 4 in 10 residents aged 65+ · 106 Korean-language listings');
   });
 }

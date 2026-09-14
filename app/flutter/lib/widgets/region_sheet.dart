@@ -36,16 +36,14 @@ class RegionSheet extends StatelessWidget {
 
   static const double sheetMaxWidth = 480;
 
-  /// mockup.js whyText — 근거_en 이 있으면 그대로, 없으면 절대값 조각으로 조립
+  /// mockup.js whyText — 근거_en 이 있으면 그대로, 없으면 절대값 조각으로 조립 (표기는 자산 근거_en 과 동일 — S.why*)
   static String whyText(Region r) {
     if (r.reasonEn.isNotEmpty) return r.reasonEn;
     final parts = <String>[];
-    if (r.foreignPer1000 != null) parts.add('Foreign visitors ${r.foreignPer1000} in 1,000');
-    if (r.gubun.isNotEmpty) {
-      parts.add(const {'자치구': 'Metropolitan district', '시': 'City', '군': 'County'}[r.gubun] ?? r.gubun);
-    }
-    if (r.e65 != null) parts.add('Residents 65+: ${(r.e65! / 10).round()} in 10');
-    if (r.kor != null) parts.add('${r.kor} places listed');
+    if (r.foreignPer1000 != null) parts.add(S.whyForeign(r.foreignPer1000!));
+    if (r.gubun.isNotEmpty) parts.add(S.whyGubun[r.gubun] ?? r.gubun);
+    if (r.e65 != null) parts.add(S.whyAged65((r.e65! / 10).round()));
+    if (r.kor != null) parts.add(S.whyListings(r.kor!));
     return parts.join(' · ');
   }
 
@@ -146,7 +144,7 @@ class RegionSheet extends StatelessWidget {
     );
   }
 
-  /// compact — 모달 바텀시트로 연다 (m3.css .sheet: surface-container-low · 위 모서리 28 · 최대 높이 78%)
+  /// compact — 모달 바텀시트로 연다 (m3.css .sheet: surface-container-low · 위 모서리 28 · 최대 높이 = 화면 높이 × 0.78)
   static Future<void> showAsBottomSheet(
     BuildContext context, {
     required Region region,

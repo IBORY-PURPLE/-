@@ -73,6 +73,20 @@ void main() {
       expect(gu.isBase, false);
       expect(a.sourceRegionFor('41111')!.code, '41110');
     });
+    test('회귀 #3 자산 절반 — 12xxx 27곳(광주 5구 + 전남 22시군) · 세종 36110 · 인천 신설 4구(보류 · months 1)', () {
+      for (final c in ['36110', '28125', '28155', '28275', '28290']) {
+        expect(a.byCode[c], isNotNull, reason: c);
+      }
+      expect(a.regions.where((r) => r.code.startsWith('12')).length, 27);
+      expect(a.byCode['12730']!.sido, '전남광주통합특별시');
+      expect(a.byCode['36110']!.isBase, true);
+      expect(a.byCode['36110']!.sido, '세종특별자치시');
+      for (final c in ['28125', '28155', '28275', '28290']) {
+        expect(a.byCode[c]!.lv, lvHold, reason: c);
+        expect(a.byCode[c]!.months, 1, reason: c);
+        expect(a.byCode[c]!.isBase, true, reason: c);
+      }
+    });
     test('경계 좌표 정수→double · viewBox 안', () {
       for (final rings in a.boundaries.values) {
         for (final ring in rings) {
