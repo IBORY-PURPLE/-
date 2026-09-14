@@ -5,7 +5,7 @@ Flutter Web이 **공사 인증키를 노출하지 않고** TourAPI 4.0 을 실�
 
 ```
 Flutter Web ──► /api/*   ──► KorService2 (apis.data.go.kr/B551011)   키는 Workers Secret에만
-            └─► /*       ──► [assets]  (지금은 public/, 나중에 ../flutter/build/web)
+            └─► /*       ──► [assets]  ../flutter/build/web (B5 · 2026-09-14부터. 임시 안내 페이지는 public/)
 cron 0 0 * * * (UTC 00:00 = KST 09:00) ──► ldongCode2 1콜 + 89곳 순환 1곳 areaBasedList2 1콜
 ```
 
