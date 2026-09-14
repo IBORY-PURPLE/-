@@ -25,7 +25,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 HERE = os.path.dirname(os.path.abspath(__file__))          # data/AI
 RAW = os.path.join(HERE, "_raw")                          # 원본·중간 파일 (사람이 안 읽음)
 OUT = os.path.join(os.path.dirname(HERE), "인간")          # 사람이 읽는 산출물
-ROOT = os.path.dirname(HERE)
+ROOT = os.path.dirname(os.path.dirname(HERE))          # 프로젝트 루트 (.env 위치)
 OP = "locgoRegnVisitrDDList"
 BASE = "https://apis.data.go.kr/B551011/DataLabService"
 ROWS = 10000
