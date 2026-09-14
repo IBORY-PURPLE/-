@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'data/assets.dart';
 import 'i18n/strings_en.dart';
 import 'screens/landing_screen.dart';
+import 'screens/map_screen.dart';
 import 'screens/placeholder_screen.dart';
 import 'state/app_state.dart';
 import 'theme/tokens.dart';
@@ -69,7 +70,7 @@ GoRouter buildRouter(AppState appState) => GoRouter(
       redirect: (context, state) => demoRedirect(appState, state.uri),
       routes: [
         GoRoute(path: '/', builder: (context, state) => const LandingScreen()),
-        GoRoute(path: '/map', builder: (context, state) => const PlaceholderScreen(title: S.mapTitle)),
+        GoRoute(path: '/map', builder: (context, state) => const MapScreen()),
         GoRoute(
           path: '/region/:code',
           builder: (context, state) => PlaceholderScreen(title: S.regionTitle, subtitle: state.pathParameters['code']),
