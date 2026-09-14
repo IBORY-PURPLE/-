@@ -1,6 +1,6 @@
 // /map — Docs/mockup/02_map.html 과 1:1.
 //  AppBar(← 랜딩 · Your map) · SegmentedButton(급수) + TOPIK · 레벨 카드 · 드롭다운 2단(시도→시군구, ldongCode2 런타임)
-//  · 89곳 토글 · 지도(ChoroplethMap) · 범례 · SourceFooter
+//  · 「Your stays」 한 줄(F8 — 자기신고 체류가 1건 이상일 때만 · 공식 통계 아님 꼬리) · 89곳 토글 · 지도(ChoroplethMap) · 범례 · SourceFooter
 //  ★ 레벨 카드의 N·M·K 는 자산 `요약` 값 그대로 (재계산 금지 — mockup.js summary 와 같은 정의)
 //  ★ 드롭다운은 ApiClient.ldong() 런타임 호출 (PRD F3). 실패·한도면 자산 `지역` 으로 조용히 폴백 (에러 화면 없음)
 //  compact(<840) = 시트를 바텀시트로 · expanded(≥840) = 지도 60% : 우측 패널 40%
@@ -209,6 +209,7 @@ class _MapScreenState extends State<MapScreen> {
         builder: (context, _) {
           final lv = appState.level ?? demoLevel;
           final card = LevelCardData.of(a, lv);
+          final stays = appState.stayCount;
           final expanded = MediaQuery.sizeOf(context).width >= MapScreen.expandedBreakpoint;
           final selectedRegion = _selected == null ? null : a.byCode[_selected!];
 
@@ -233,6 +234,16 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               _LevelPicker(level: lv, onChanged: (n) => appState.setLevel(n)),
               Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 0), child: _LevelCard(data: card)),
+              // F8 — 체류 자기신고 요약. 0건이면 아무것도 그리지 않는다 (한국어 각주는 시트에 있음)
+              if (stays.days > 0)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Text(
+                    '${S.yourStays(stays.regions, stays.days)} · ${S.notOfficial}',
+                    key: const Key('your-stays'),
+                    style: MalgilType.bodySmall.copyWith(color: MalgilColors.onSurfaceVariant),
+                  ),
+                ),
               if (expanded)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
