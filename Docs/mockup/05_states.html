@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malgil · State gallery (mockup)</title>
+<link rel="stylesheet" href="m3.css">
+<style>
+  .frame-wrap { align-items: flex-start; }
+  .frame { min-height: 420px; }
+  .caption { padding: 8px 16px; font: 500 12px/16px var(--font); color: #444; background: #fff8e1; }
+</style>
+</head>
+<body>
+<div class="mock-note">상태 갤러리 — Flutter의 <b>state_views</b> 위젯과 1:1. 심사 회귀 케이스: 4 이미지 없음 · 5 Type3 contain · 6 일일 한도(강제 429) · 빈 필터 · API 오류+Retry · 잠긴 지역 · 제외 · 보류 · Lv1~2 「Any level」.</div>
+<div class="frame-wrap">
+
+<div class="frame"><div class="caption">Loading · skeleton (StateViews.loading)</div>
+  <div class="content">
+    <div class="chip-row"><span class="skeleton" style="width:64px;height:32px"></span><span class="skeleton" style="width:72px;height:32px"></span><span class="skeleton" style="width:80px;height:32px"></span></div>
+    <div class="list-item"><div class="skeleton" style="width:96px;height:72px"></div><div style="flex:1"><div class="skeleton" style="height:16px;width:70%"></div><div class="skeleton" style="height:12px;width:50%;margin-top:8px"></div></div></div>
+    <div class="list-item"><div class="skeleton" style="width:96px;height:72px"></div><div style="flex:1"><div class="skeleton" style="height:16px;width:60%"></div><div class="skeleton" style="height:12px;width:40%;margin-top:8px"></div></div></div>
+    <div class="list-item"><div class="skeleton" style="width:96px;height:72px"></div><div style="flex:1"><div class="skeleton" style="height:16px;width:80%"></div><div class="skeleton" style="height:12px;width:45%;margin-top:8px"></div></div></div>
+  </div>
+</div>
+
+<div class="frame"><div class="caption">Empty filter (StateViews.empty)</div>
+  <div class="content"><div class="pad" style="text-align:center;padding-top:56px">
+    <div style="font-size:40px">🗂️</div>
+    <div class="title-medium" style="margin-top:8px">No places listed in this category</div>
+    <div class="body-medium muted">Try another filter — nothing is broken.</div>
+    <button class="btn text">Show all</button>
+  </div></div>
+</div>
+
+<div class="frame"><div class="caption">Live data unavailable (StateViews.error) — cached fallback</div>
+  <div class="banner error">⚠️ <div><div class="title-small">Live data unavailable</div><div class="body-medium">Showing listings from 4 min ago.</div></div><span class="spacer"></span><button class="btn text">Retry</button></div>
+  <div class="content">
+    <div class="list-item"><div class="thumb text-hero">Food</div><div><div class="title-medium ko">노이식탁</div><div class="body-small muted ko">대구광역시 남구 …</div></div></div>
+  </div>
+</div>
+
+<div class="frame"><div class="caption">Daily API quota reached (StateViews.quota · regression #6)</div>
+  <div class="banner">⏳ <div><div class="title-small">Daily API quota reached</div><div class="body-medium">Live tourism data returns tomorrow (1,000 calls per operation per day). Levels and the map still work.</div></div></div>
+  <div class="content"><div class="pad body-medium muted">Map and level card are unaffected — they use bundled public data computed 2026-09-14.</div></div>
+</div>
+
+<div class="frame"><div class="caption">Locked region sheet (user Lv3, region Lv5)</div>
+  <div class="content" style="padding-top:120px">
+    <div class="sheet open" style="position:relative;transform:none">
+      <div class="handle"></div>
+      <div class="row"><div><div class="title-large ko">구례군</div><div class="body-medium muted ko">전남광주통합특별시</div></div><span class="spacer"></span><span class="lv lv5">Lv5</span><span class="badge-89">Depopulation area</span></div>
+      <div class="divider"></div>
+      <div class="body-medium">Foreign visitors 4 in 1,000 · County · Residents 65+: 4 in 10 · 106 places listed</div>
+      <div class="body-small muted" style="margin-top:4px">Computed 2026-09-14 · 출처: ⓒ한국관광공사 · 행정안전부 주민등록 인구</div>
+      <div class="banner" style="margin:12px -16px 0">🔒 <div class="body-medium">Opens at Lv5 — you can still visit; expect Korean for transport and ordering</div></div>
+      <div class="stack" style="margin-top:16px"><a class="btn filled block" href="#">Places · live</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="frame"><div class="caption">Not enough data (excluded) · On hold (reorganized 2026-07) · Any level</div>
+  <div class="content pad stack">
+    <div class="card outlined"><div class="row"><span class="title-medium ko">부산 북구</span><span class="spacer"></span><span class="lv excluded">Not enough data</span></div><div class="body-small muted" style="margin-top:6px">Fewer than 20 listed places — not enough to draw a map.</div></div>
+    <div class="card outlined"><div class="row"><span class="title-medium ko">인천 제물포구</span><span class="spacer"></span><span class="lv hold">On hold</span></div><div class="body-small muted" style="margin-top:6px">Reorganized on 2026-07-01 — only 1 month of visitor data. Level pending.</div></div>
+    <div class="card outlined"><div class="row"><span class="title-medium ko">신안군</span><span class="spacer"></span><span class="lv lv12">Any level</span><span class="badge-89">Depopulation area</span></div><div class="body-small muted" style="margin-top:6px">Foreign visitors 230 in 1,000 — visitors already come from abroad; multilingual signage is common.</div></div>
+  </div>
+</div>
+
+<div class="frame"><div class="caption">Image rules (regression #4 · #5) — KtoImage is the only image widget</div>
+  <div class="content">
+    <div class="list-item"><div class="thumb contain"><img src="fixtures/placeholder.svg" alt=""><span class="src">ⓒ한국관광공사</span></div><div><div class="title-medium">Type3 (no-derivative) → contain, never cropped</div><div class="body-small muted">letterbox on dark, source caption always on</div></div></div>
+    <div class="list-item"><div class="thumb"><img src="fixtures/placeholder.svg" alt=""><span class="src">ⓒ한국관광공사</span></div><div><div class="title-medium">Type1 → cover allowed</div><div class="body-small muted">source caption still on</div></div></div>
+    <div class="list-item"><div class="thumb text-hero">Food · 한식</div><div><div class="title-medium">No image → text hero</div><div class="body-small muted">category label, never a broken image</div></div></div>
+  </div>
+</div>
+
+</div>
+<script src="mockup.js"></script><script>MK.toolbar();</script>
+</body>
+</html>
