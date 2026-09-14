@@ -97,6 +97,28 @@ abstract final class S {
   static const String stayNoteKo1 = '생활인구로 산정되는 것과 같은 형태의 체류입니다.';
   static const String stayNoteKo2 = '본 지표는 행정안전부 생활인구 산정 결과가 아니며, 사용자가 스스로 확인하도록 만든 자체 지표입니다.';
 
+  // ── 동네 말벗 세션 (PRD F7 · 기획서 §5-3) — 지역 시트·장소 상세의 Local companion 카드 안에만 (별도 탭 없음) ──
+  //  상태는 전부 recruiting (허위 슬롯 금지). 가격·좌석·날짜 없음. 잠금 문구는 「Opens at …」 + 지도는 계속 쓸 수 있다는 꼬리만.
+  static const String sessionS2Title = 'Market regulars alley';
+  static const String sessionS2Body =
+      'Thirty years at the same market — your companion walks you in and introduces you to the stallholders they greet by name.';
+  static const String sessionS1Title = "Driver's diner table";
+  static const String sessionS1Body =
+      "A set-meal diner where you'll be the only visitor. Share the table; order and pay in Korean, yourself.";
+  static const String sessionMax5 = 'Max 5 — the size where stories flow';
+  static const String sessionRecruiting = 'Recruiting a local companion here';
+  static String sessionOpensAt(String lv) => 'Opens at $lv — keep exploring; the map still works';
+  static const String interestCta = "I'm interested (stays on this device)";
+  static const String interestNoted = 'Noted on this device — sessions here will show first once a companion is recruited';
+  static const String malbeotNoticeKo =
+      '동네 말벗은 지도의 마지막 핀이며 별도 상품이 아닙니다. 오프라인 진행은 지역 시니어가 담당하며, 본 공모전 및 한국관광공사의 지원사업과는 무관합니다.';
+  static const String malbeotNoticeEn = 'Free pilot sessions only — no price, no booking here.';
+
+  // ── 지도 「Your stays」 (F8 · 체류 자기신고 요약 — 한국어 각주는 시트에 있으니 지도에는 짧은 영어 꼬리만) ──
+  static String yourStays(int regions, int days) =>
+      'Your stays (self-reported, on this device): $regions ${regions == 1 ? 'region' : 'regions'} · $days ${days == 1 ? 'day' : 'days'}';
+  static const String notOfficial = 'Not an official statistic';
+
   /// 1st · 2nd · 3rd · 4th … 11th · 12th · 13th · 21st
   static String ordinal(int n) {
     final r100 = n % 100;

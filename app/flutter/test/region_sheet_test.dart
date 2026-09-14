@@ -38,6 +38,11 @@ void main() {
     expect(find.textContaining('Computed ${a.meta.asOf}'), findsOneWidget);
     expect(find.text(S.placesLive), findsOneWidget);
     expect(find.text(S.localCompanion), findsOneWidget);
+    // 말벗 섹션 — 구례 Lv5 → S2 + S1 · 사용자 Lv3 → S2 활성 · S1 은 실제 비활성 + Opens at Lv4
+    expect(find.byKey(const Key('session-s2')), findsOneWidget);
+    expect(find.byKey(const Key('session-s1')), findsOneWidget);
+    expect(t.widget<FilledButton>(find.byKey(const Key('interest-s1'))).onPressed, isNull);
+    expect(find.text(S.sessionOpensAt('Lv4')), findsOneWidget);
     expect(find.text('${S.stayNoteKo1}\n${S.stayNoteKo2}'), findsOneWidget);
 
     final all = _allText(t);

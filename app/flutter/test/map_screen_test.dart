@@ -81,6 +81,28 @@ void main() {
     expect(scrollable.position.pixels, 0);
   });
 
+  testWidgets('Your stays — 자기신고 0건이면 없음 · 추가되면 「2 regions · 3 days · Not an official statistic」 (F8)', (t) async {
+    await t.binding.setSurfaceSize(const Size(500, 1400));
+    addTearDown(() => t.binding.setSurfaceSize(null));
+    final api = ApiClient(client: MockClient((req) async => http.Response('{"ok":false,"kind":"upstream","message":"x"}', 502)));
+    final s = AppState(level: 3);
+    await t.pumpWidget(_app(a, s, api));
+    await t.pumpAndSettle();
+    expect(find.byKey(const Key('your-stays')), findsNothing);
+    expect(find.textContaining('Your stays'), findsNothing);
+
+    s.addVisit('27200', '2026-09-14');
+    await t.pumpAndSettle();
+    expect(find.text('Your stays (self-reported, on this device): 1 region · 1 day · Not an official statistic'), findsOneWidget);
+
+    s.addVisit('27200', '2026-09-13');
+    s.addVisit('12730', '2026-09-14');
+    await t.pumpAndSettle();
+    expect(find.text('Your stays (self-reported, on this device): 2 regions · 3 days · Not an official statistic'), findsOneWidget);
+    // 지도에는 짧은 영어 꼬리만 — 한국어 각주(P-T03)는 시트에
+    expect(find.textContaining(S.stayNoteKo1), findsNothing);
+  });
+
   testWidgets('ldong 성공 — 시도 16 을 API 항목으로 채움', (t) async {
     await t.binding.setSurfaceSize(const Size(500, 1400));
     addTearDown(() => t.binding.setSurfaceSize(null));

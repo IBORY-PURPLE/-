@@ -104,7 +104,7 @@ void main() {
 
     // 지역 급수 — 자산(27200 남구 Lv3)
     expect(find.text(S.thisRegion('Lv3')), findsOneWidget);
-    expect(t.widget<LevelChip>(find.byType(LevelChip)).kind, LevelChipKind.lv3);
+    expect(t.widget<LevelChip>(find.descendant(of: find.byKey(const Key('region-chip')), matching: find.byType(LevelChip))).kind, LevelChipKind.lv3);
     expect(find.byKey(const Key('why')), findsOneWidget);
 
     // Korean you'll use here — 4칩 · Try 문장
@@ -140,9 +140,13 @@ void main() {
     expect(t.widget<Image>(find.descendant(of: hero, matching: find.byType(Image))).fit, BoxFit.contain);
     expect(find.text('${S.sourceCaption}${S.type3Caption}'), findsOneWidget);
 
-    // Local companion · 푸터
+    // Local companion(말벗 섹션 compact — 남구 Lv3 → S2 만 · 사용자 Lv3 → 활성 · 고지문) · 푸터
     expect(find.text(S.localCompanion), findsOneWidget);
     expect(find.text(S.licensedInterpreter), findsOneWidget);
+    expect(find.byKey(const Key('session-s2')), findsOneWidget);
+    expect(find.byKey(const Key('session-s1')), findsNothing);
+    expect(t.widget<FilledButton>(find.byKey(const Key('interest-s2'))).onPressed, isNotNull);
+    expect(find.textContaining(S.malbeotNoticeKo), findsOneWidget);
     final footer = _plain(t, const Key('place-footer'));
     expect(footer, startsWith('Fetched 2026-09-14 '));
     expect(footer, contains('detailCommon2 + detailIntro2 · 출처: ⓒ한국관광공사 · nothing stored on our server'));

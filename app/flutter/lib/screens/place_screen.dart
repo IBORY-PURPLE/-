@@ -1,13 +1,12 @@
 // /place/:id — Docs/mockup/04_place.html 과 1:1.
 //  히어로 KtoImage(16:9 · contain 기본 · Type3 면 캡션 「· 변경금지(Type3)」) · 제목 · 주소 ·
 //  「This region: Lv」 LevelChip + why ▸(/map) · 「Korean you'll use here」(음식점 메뉴 칩) · About(overview · Read more) ·
-//  운영 정보(있는 것만) · Local companion(kctg.or.kr) · 「I visited here」 체크 · 푸터
+//  운영 정보(있는 것만) · 동네 말벗 섹션(MalbeotSection compact — Local companion 카드 자리 · kctg.or.kr) · 「I visited here」 체크 · 푸터
 //  ★ ApiClient.place(id) 1콜 → contenttypeid 39 일 때만 placeIntro(id,'39') 1콜 추가. 렌더 시점 호출 · 저장 없음.
 //  ★ 지역 급수는 자산에서: lDongRegnCd(2, 세종은 5) + lDongSignguCd(3) → code → sourceRegionFor (일반구면 parent 시)
 //  상태: 로딩 · 404 not_found 「This place is no longer listed」 · quota 배너 · error + Retry
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../app.dart';
 import '../data/api.dart';
@@ -18,6 +17,7 @@ import '../state/app_state.dart';
 import '../theme/tokens.dart';
 import '../widgets/kto_image.dart';
 import '../widgets/level_chip.dart';
+import '../widgets/malbeot_section.dart';
 import '../widgets/region_sheet.dart' show RegionSheet;
 import '../widgets/state_views.dart';
 
@@ -120,14 +120,6 @@ class PlaceScreenState extends State<PlaceScreen> {
     }
   }
 
-  Future<void> _openKctg() async {
-    try {
-      await launchUrl(Uri.parse(S.kctgUrl), mode: LaunchMode.externalApplication, webOnlyWindowName: '_blank');
-    } catch (e) {
-      debugPrint('PlaceScreen: launchUrl failed ($e)');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final scope = AppScope.of(context);
@@ -170,7 +162,7 @@ class PlaceScreenState extends State<PlaceScreen> {
             aboutOpen: _aboutOpen,
             onToggleAbout: () => setState(() => _aboutOpen = !_aboutOpen),
             onWhy: () => context.go('/map'),
-            onOpenKctg: widget.onOpenKctg ?? _openKctg,
+            onOpenKctg: widget.onOpenKctg,
             footer: S.placeFooter(formatFetchedAt(c.fetchedAt), withIntro: introItem != null),
           ),
         ],
@@ -216,7 +208,7 @@ class _PlaceBody extends StatelessWidget {
   final bool aboutOpen;
   final VoidCallback onToggleAbout;
   final VoidCallback onWhy;
-  final VoidCallback onOpenKctg;
+  final VoidCallback? onOpenKctg; // null 이면 MalbeotSection 기본(url_launcher 새 탭)
   final String footer;
 
   String _s(String k) => (common[k] ?? '').toString().trim();
@@ -274,7 +266,13 @@ class _PlaceBody extends StatelessWidget {
                 _InfoCard(info: info),
               ],
               const SizedBox(height: 12),
-              _CompanionCard(onOpen: onOpenKctg),
+              MalbeotSection(
+                region: region,
+                userLevel: appState.level ?? demoLevel,
+                appState: appState,
+                compact: true,
+                onOpenKctg: onOpenKctg,
+              ),
               const SizedBox(height: 4),
               if (visitCode != null) _VisitedTile(appState: appState, code: visitCode!, today: today),
             ],
@@ -414,42 +412,6 @@ class _InfoCard extends StatelessWidget {
                 ),
                 Padding(padding: const EdgeInsets.only(top: 2), child: Text(value, style: MalgilType.bodyMedium)),
               ],
-            ],
-          ),
-        ),
-      );
-}
-
-/// Local companion — 04_place.html 문구 + 「Licensed interpreter booking (kctg.or.kr) ↗」
-class _CompanionCard extends StatelessWidget {
-  const _CompanionCard({required this.onOpen});
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context) => Card.outlined(
-        color: MalgilColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(MalgilShape.cornerMedium),
-          side: const BorderSide(color: MalgilColors.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(S.localCompanion, style: MalgilType.titleSmall),
-              const SizedBox(height: 4),
-              Text(S.localCompanionBodyLong, style: MalgilType.bodyMedium.copyWith(color: MalgilColors.onSurfaceVariant)),
-              const SizedBox(height: 4),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  key: const Key('open-kctg'),
-                  onPressed: onOpen,
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: const Text(S.licensedInterpreter),
-                ),
-              ),
             ],
           ),
         ),

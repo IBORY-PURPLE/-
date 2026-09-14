@@ -1,16 +1,16 @@
 // 지역 시트 — Docs/mockup/mockup.js fillSheet · 05_states.html(잠긴 지역) 과 1:1.
 //  이름·시도 / 급수 칩 / 89곳 배지 / 근거 한 줄(근거_en) / Computed 산출일·출처 /
-//  잠김 배너 · 보류·제외 안내 / Places · live / Local companion / 체류 자기신고 + 한국어 각주(P-T03)
+//  잠김 배너 · 보류·제외 안내 / Places · live / 동네 말벗 섹션(MalbeotSection — Local companion 카드 자리) / 체류 자기신고 + 한국어 각주(P-T03)
 //  compact(<840) 는 showModalBottomSheet, expanded(≥840) 는 우측 패널 — 둘 다 이 위젯을 그린다.
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../data/assets.dart';
 import '../i18n/strings_en.dart';
 import '../state/app_state.dart';
 import '../theme/tokens.dart';
 import 'level_chip.dart';
+import 'malbeot_section.dart';
 
 class RegionSheet extends StatelessWidget {
   const RegionSheet({
@@ -127,7 +127,7 @@ class RegionSheet extends StatelessWidget {
               child: const Text(S.placesLive),
             ),
             const SizedBox(height: 12),
-            _CompanionCard(onOpen: onOpenKctg ?? _openKctg),
+            MalbeotSection(region: region, userLevel: userLevel, appState: appState, onOpenKctg: onOpenKctg),
             const SizedBox(height: 4),
             CheckboxListTile(
               key: const Key('stayed-today'),
@@ -144,14 +144,6 @@ class RegionSheet extends StatelessWidget {
         );
       },
     );
-  }
-
-  static Future<void> _openKctg() async {
-    try {
-      await launchUrl(Uri.parse(S.kctgUrl), mode: LaunchMode.externalApplication, webOnlyWindowName: '_blank');
-    } catch (e) {
-      debugPrint('RegionSheet: launchUrl failed ($e)');
-    }
   }
 
   /// compact — 모달 바텀시트로 연다 (m3.css .sheet: surface-container-low · 위 모서리 28 · 최대 높이 78%)
@@ -201,42 +193,6 @@ class _LockedBanner extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(child: Text(text, style: MalgilType.bodyMedium.copyWith(color: MalgilColors.onTertiaryContainer))),
           ],
-        ),
-      );
-}
-
-/// Local companion — Card.outlined + TextButton.icon 「Open kctg.or.kr ↗」
-class _CompanionCard extends StatelessWidget {
-  const _CompanionCard({required this.onOpen});
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context) => Card.outlined(
-        color: MalgilColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(MalgilShape.cornerMedium),
-          side: const BorderSide(color: MalgilColors.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(S.localCompanion, style: MalgilType.titleSmall),
-              const SizedBox(height: 4),
-              Text(S.localCompanionBody, style: MalgilType.bodyMedium.copyWith(color: MalgilColors.onSurfaceVariant)),
-              const SizedBox(height: 4),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  key: const Key('open-kctg'),
-                  onPressed: onOpen,
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: const Text(S.openKctg),
-                ),
-              ),
-            ],
-          ),
         ),
       );
 }
