@@ -1,0 +1,29 @@
+{
+ "ok": true,
+ "fetchedAt": "2026-09-14T09:33:00.000Z",
+ "remaining": "900",
+ "totalCount": 1,
+ "count": 1,
+ "items": [
+  {
+   "contentid": "2842743",
+   "contenttypeid": "39",
+   "seat": "",
+   "kidsfacility": "0",
+   "firstmenu": "노이스테이크",
+   "treatmenu": "새우 크림 리조또 / 해산물 칠리 오일 파스타 / 포크 프라이 라이스 등",
+   "smoking": "",
+   "packing": "가능",
+   "infocenterfood": "0507-1486-5252",
+   "scalefood": "",
+   "parkingfood": "가능",
+   "opendatefood": "",
+   "opentimefood": "- 11:30~22:00<br>- 마지막 주문 21:00",
+   "restdatefood": "연중무휴",
+   "discountinfofood": "",
+   "chkcreditcardfood": "",
+   "reservationfood": "",
+   "lcnsno": "20110166160"
+  }
+ ]
+}

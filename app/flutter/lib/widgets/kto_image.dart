@@ -19,6 +19,7 @@ class KtoImage extends StatelessWidget {
     this.aspectRatio,
     this.borderRadius = MalgilShape.cornerSmall,
     this.captionSmall = true,
+    this.captionSuffix,
   });
 
   final String? url; // firstimage · firstimage2 — 없으면 텍스트 히어로
@@ -29,12 +30,25 @@ class KtoImage extends StatelessWidget {
   final double? aspectRatio; // 지정 시 AspectRatio 로 감쌈 (예: 16/9 히어로)
   final double borderRadius;
   final bool captionSmall; // 썸네일(9px)인지 히어로(11px)인지
+  final String? captionSuffix; // 캡션 뒤에 덧붙일 문구 (예: 「 · 변경금지(Type3)」) — 출처 문구 자체는 바꿀 수 없다
 
   static bool modifiable(String? cpyrhtDivCd) => cpyrhtDivCd == 'Type1';
 
+  /// 공사 이미지 URL 정규화 — `http://…visitkorea.or.kr` 는 https 로 (2026-09-14 실측: https 200 · 응답은 같은 ETag).
+  /// firstimage 가 http 로 오는 건이 섞여 있어(places_27200 표본 24/38) https 배포에서 혼합 콘텐츠로 막히는 것을 막는다.
+  static String normalizeUrl(String u) {
+    final t = u.trim();
+    if (!t.startsWith('http://')) return t;
+    final host = Uri.tryParse(t)?.host ?? '';
+    return host.endsWith('visitkorea.or.kr') ? 'https://${t.substring(7)}' : t;
+  }
+
+  /// 히어로 캡션 문구 — Type3(변경금지)면 「 · 변경금지(Type3)」 를 덧붙인다 (04_place.html)
+  static String heroCaptionSuffix(String? cpyrhtDivCd) => cpyrhtDivCd == 'Type3' ? S.type3Caption : '';
+
   @override
   Widget build(BuildContext context) {
-    final u = url?.trim() ?? '';
+    final u = normalizeUrl(url ?? '');
     Widget body;
     if (u.isEmpty) {
       body = _textHero();
@@ -46,6 +60,9 @@ class KtoImage extends StatelessWidget {
           ColoredBox(color: cover ? MalgilColors.surfaceContainerHigh : const Color(0xFF111111)),
           Image.network(
             u,
+            // 공사 이미지 서버는 CORS 헤더(Access-Control-Allow-Origin)가 없다(2026-09-14 실측) → CanvasKit 의 fetch 가 실패하므로
+            // 그때는 <img> 요소로 그린다(fallback). 없으면 웹에서 모든 공사 이미지가 회색 박스가 된다.
+            webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
             fit: cover ? BoxFit.cover : BoxFit.contain,
             alignment: Alignment.center,
             loadingBuilder: (context, child, progress) => progress == null ? child : _greyBox(),
@@ -65,7 +82,7 @@ class KtoImage extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: captionSmall ? 4 : 8, vertical: captionSmall ? 0 : 2),
         decoration: BoxDecoration(color: const Color(0x8C000000), borderRadius: BorderRadius.circular(captionSmall ? 3 : 4)),
         child: Text(
-          S.sourceCaption,
+          '${S.sourceCaption}${captionSuffix ?? ''}',
           style: TextStyle(fontSize: captionSmall ? 9 : 11, height: captionSmall ? 12 / 9 : 16 / 11, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       );

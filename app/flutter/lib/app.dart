@@ -7,7 +7,8 @@ import 'data/assets.dart';
 import 'i18n/strings_en.dart';
 import 'screens/landing_screen.dart';
 import 'screens/map_screen.dart';
-import 'screens/placeholder_screen.dart';
+import 'screens/place_screen.dart';
+import 'screens/places_screen.dart';
 import 'state/app_state.dart';
 import 'theme/tokens.dart';
 
@@ -73,11 +74,11 @@ GoRouter buildRouter(AppState appState) => GoRouter(
         GoRoute(path: '/map', builder: (context, state) => const MapScreen()),
         GoRoute(
           path: '/region/:code',
-          builder: (context, state) => PlaceholderScreen(title: S.regionTitle, subtitle: state.pathParameters['code']),
+          builder: (context, state) => PlacesScreen(key: ValueKey('region-${state.pathParameters['code']}'), code: state.pathParameters['code'] ?? ''),
         ),
         GoRoute(
           path: '/place/:id',
-          builder: (context, state) => PlaceholderScreen(title: S.placeTitle, subtitle: state.pathParameters['id']),
+          builder: (context, state) => PlaceScreen(key: ValueKey('place-${state.pathParameters['id']}'), id: state.pathParameters['id'] ?? ''),
         ),
       ],
     );

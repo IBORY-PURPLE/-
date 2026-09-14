@@ -38,7 +38,7 @@ npm run tail             # 운영 로그 스트리밍
 | `GET /api/place/:id` | `:id` 숫자 1..12자리 | 300s | contentId 단독 (YN 계열 파라미터는 상류가 거부) |
 | `GET /api/place/:id/intro` | `type` 12\|14\|15\|39 필수 | 300s | 음식점(39)이면 `firstmenu` `treatmenu` `opentimefood` `infocenterfood` … |
 
-- **캐시 3층** — 아이솔레이트 메모리(Map, 최대 500건) → KV(`CACHE` 바인딩이 있을 때) → Cache API. **`*.workers.dev` 에서는 Cache API 가 동작하지 않으므로 배포 후 KV 를 반드시 붙인다**(`wrangler.toml` 주석 참조). 200 만 저장. 429(한도)는 메모리에 60s 부정 캐시.
+- **캐시 3층** — 아이솔레이트 메모리(Map, 최대 500건) → KV(`CACHE` 바인딩이 있을 때) → Cache API. **`*.workers.dev` 에서는 Cache API 가 동작하지 않으므로 배포 후 KV 를 반드시 붙인다**(`wrangler.toml` 주석 참조). 200 만 저장. 429(한도) · 404(없는 contentId)는 메모리에 60s 부정 캐시.
 - **레이트리밋** — `[[ratelimits]] API_RL`(IP 별 분당 120). 초과 시 429 `{kind:'rate_limited'}`. 바인딩이 없으면(로컬) 통과.
 - **429** `{ok:false, kind:'quota'}` — 상류가 한도 초과(XML `LIMITED_NUMBER_OF_SERVICE_REQUESTS_EXCEEDS_ERROR`)를 보낼 때. (잔여 0 이어도 그 호출이 성공했으면 200 — 마지막 1콜의 데이터를 버리지 않는다)
 - **502** `{ok:false, kind:'upstream'|'param_error'|'api_error'}` — 상류 오류 3형태(TSD §4-4).

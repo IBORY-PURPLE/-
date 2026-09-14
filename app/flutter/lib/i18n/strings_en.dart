@@ -104,14 +104,64 @@ abstract final class S {
     return switch (n % 10) { 1 => '${n}st', 2 => '${n}nd', 3 => '${n}rd', _ => '${n}th' };
   }
 
-  // ── 자리표시 화면 ──
-  static const String comingSoon = 'Coming in the next build';
-  static const String currentLevel = 'Your level';
-  static const String noLevelYet = 'Not chosen yet';
+  // ── 공통 내비게이션 ──
   static const String backToLanding = 'Choose level';
+  static const String back = 'Back';
   static const String mapTitle = 'Level map';
   static const String regionTitle = 'Region';
   static const String placeTitle = 'Place';
+
+  // ── 장소 목록 (03_places.html) ──
+  static const String livePrefix = 'Live · fetched '; // ● 점 + 시각 hh:mm
+  static const String liveSource = ' · 출처: ⓒ한국관광공사';
+  static const String typeAll = 'All';
+  static const String catAny = 'Any topic';
+
+  /// contenttypeid → 칩 라벨 (03_places.html TYPE)
+  static const Map<String, String> typeLabel = {'12': 'Sights', '14': 'Culture', '15': 'Festivals', '39': 'Food'};
+
+  /// lclsSystm1 → 칩 라벨 (03_places.html CAT)
+  static const Map<String, String> catLabel = {
+    'FD': 'Food',
+    'HS': 'History',
+    'NA': 'Nature',
+    'VE': 'Culture',
+    'EX': 'Experience',
+    'LS': 'Leisure',
+    'EV': 'Events',
+    'AC': 'Stay',
+    'C01': 'Course',
+  };
+
+  static String placesFooter(int shown, int total, String fetchedAt) =>
+      '$shown of $total listings (shopping excluded) · areaBasedList2 · fetched $fetchedAt';
+  static const String unknownRegion = 'Region not in the level table';
+
+  // ── 장소 상세 (04_place.html) ──
+  static String thisRegion(String lv) => 'This region: $lv';
+  static const String why = 'why ▸';
+  static const String type3Caption = ' · 변경금지(Type3)';
+  static const String koreanHereTitle = "Korean you'll use here";
+  static const String koreanHereSub = 'From the menu as listed (firstmenu · treatmenu). Nothing invented.';
+  static const String tryPrefix = 'Try: ';
+  static String tryOrder(String menu) => '「$menu 하나 주세요」';
+  static const String tryPrice = '「이거 얼마예요?」';
+  static const String about = 'About';
+  static const String readMore = 'Read more';
+  static const String showLess = 'Show less';
+  static const String hours = 'Hours';
+  static const String closed = 'Closed';
+  static const String parking = 'Parking';
+  static const String phone = 'Phone';
+  static const String reservation = 'Reservation';
+  static const String localCompanionBodyLong =
+      'Recruiting in this area — a resident who has lived here 10+ years, talking with you in Korean. Not a tour; no price, no booking here.';
+  static const String licensedInterpreter = 'Licensed interpreter booking (kctg.or.kr) ↗';
+  static const String visitedHere = 'I visited here (self-reported, stays on this device)';
+  static String placeFooter(String fetchedAt, {required bool withIntro}) =>
+      'Fetched $fetchedAt · detailCommon2${withIntro ? ' + detailIntro2' : ''} · 출처: ⓒ한국관광공사 · nothing stored on our server';
+  static const String placeNotListed = 'This place is no longer listed';
+  static const String placeNotListedBody = 'The listing was removed from the public tourism database.';
 }
 
 class LevelCardText {

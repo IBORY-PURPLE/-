@@ -23,7 +23,7 @@ const CONTENT_TYPES = ['12', '14', '15', '39'] as const;
 const TTL = { ldong: 3600, places: 300, place: 300 } as const;
 /** 목록은 항상 상류 최대 1콜(공개 파라미터로 노출하지 않는다 — 값을 바꿔 캐시를 우회하며 한도를 태우는 구멍 방지) */
 const ROWS_FIXED = 1000;
-/** 한도 초과(429) 응답의 부정 캐시 — 이 동안은 상류를 두드리지 않는다 */
+/** 한도 초과(429) · 없는 contentId(404) 응답의 부정 캐시(메모리만) — 이 동안은 상류를 두드리지 않는다 */
 const NEG_TTL = 60;
 const RE_CODE5 = /^\d{5}$/;
 const RE_REGN = /^\d{2}$/;
@@ -192,8 +192,9 @@ async function cached(
     if (kv) c.executionCtx.waitUntil(kv.put(key, JSON.stringify(e), { expirationTtl: Math.max(60, ttl) }));
     const toStore = new Response(body, { status: 200, headers: { ...headers, 'Cache-Control': `public, s-maxage=${ttl}, max-age=0`, 'x-malgil-cache': 'miss' } });
     c.executionCtx.waitUntil(caches.default.put(keyReq, toStore));
-  } else if (res.status === 429) {
-    memSet(key, { exp: now + NEG_TTL * 1000, status: 429, body, headers });
+  } else if (res.status === 429 || res.status === 404) {
+    // 404(not_found) 도 부정 캐시 — 같은 죽은 contentId 를 다시 열 때마다 detailCommon2 1콜을 태우지 않는다 (2026-09-14 검증 중 /place/1 재방문 3콜 실측)
+    memSet(key, { exp: now + NEG_TTL * 1000, status: res.status, body, headers });
   }
   return res;
 }
