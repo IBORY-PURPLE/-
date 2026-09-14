@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 import json,io,sys
+
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))          # data/AI
+RAW = os.path.join(HERE, "_raw")                          # 원본·중간 파일 (사람이 안 읽음)
+OUT = os.path.join(os.path.dirname(HERE), "인간")          # 사람이 읽는 산출물
 sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding="utf-8")
-cn=json.load(open("code_name.json",encoding="utf-8"))
+cn=json.load(open(os.path.join(RAW, "code_name.json"),encoding="utf-8"))
 # name -> codes
 idx={}
 for k,(sido,sgg,n) in cn.items():
@@ -42,5 +47,5 @@ def resolve(tbl,label):
     print(label,len(out),"unmatched:",bad)
     return out
 d=resolve(DECL,"DECL"); i=resolve(INTEREST,"INTEREST")
-json.dump({"decline":d,"interest":i},open("regions.json","w",encoding="utf-8"),ensure_ascii=False,indent=1)
+json.dump({"decline":d,"interest":i},open(os.path.join(RAW, "regions.json"),"w",encoding="utf-8"),ensure_ascii=False,indent=1)
 for x in d: print(x["code"],x["sido"],x["sgg"])

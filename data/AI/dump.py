@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 import json, time, urllib.request, urllib.parse, sys, re, os
+
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))          # data/AI
+RAW = os.path.join(HERE, "_raw")                          # 원본·중간 파일 (사람이 안 읽음)
+OUT = os.path.join(os.path.dirname(HERE), "인간")          # 사람이 읽는 산출물
 KEY=os.environ.get("TOUR_API_KEY","")
 if not KEY:
     sys.exit("TOUR_API_KEY is not set. Export your Korea Tourism Organization OpenAPI service key (decoded) first.")
@@ -41,5 +46,5 @@ res={}
 for svc in ("KorService2","EngService2"):
     t,rows=collect(svc)
     res[svc]={"total":t,"fetched":len(rows),"items":[slim(r) for r in rows]}
-json.dump(res,open("dump.json","w",encoding="utf-8"),ensure_ascii=False)
+json.dump(res,open(os.path.join(RAW, "dump.json"),"w",encoding="utf-8"),ensure_ascii=False)
 print("DONE", {k:(v["total"],v["fetched"]) for k,v in res.items()})

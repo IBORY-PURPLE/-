@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 import csv,json,io,sys,re,statistics,math
+
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))          # data/AI
+RAW = os.path.join(HERE, "_raw")                          # 원본·중간 파일 (사람이 안 읽음)
+OUT = os.path.join(os.path.dirname(HERE), "인간")          # 사람이 읽는 산출물
 sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding="utf-8")
-rows=list(csv.reader(open("age_sgg_utf8.csv",encoding="utf-8")))
+rows=list(csv.reader(open(os.path.join(RAW, "age_sgg_utf8.csv"),encoding="utf-8")))
 hdr=rows[0]; n=lambda s:int(s.replace(",","")) if s.replace(",","").isdigit() else 0
 def idxs(pat): return [i for i,h in enumerate(hdr) if re.match(pat,h)]
 i65=idxs(r'.*_계_(6[5-9]|7\d|8\d|9\d)~|.*_계_100세')
@@ -13,9 +18,9 @@ for r in rows[1:]:
     if not m: continue
     A[m.group(1)[:5]]={"name":r[0].split("(")[0].strip(),"pop":n(r[itot]),
       "o65":sum(n(r[i]) for i in i65),"a5074":sum(n(r[i]) for i in i5074)}
-tour=json.load(open("deep.json",encoding="utf-8"))
+tour=json.load(open(os.path.join(RAW, "deep.json"),encoding="utf-8"))
 K,E,Kns,Ens=tour["K"],tour["E"],tour["Kns"],tour["Ens"]
-reg=json.load(open("regions.json",encoding="utf-8"))
+reg=json.load(open(os.path.join(RAW, "regions.json"),encoding="utf-8"))
 D={x["code"]:x for x in reg["decline"]}; I={x["code"]:x for x in reg["interest"]}
 g=lambda d,c:d.get(c,0)
 p89=sum(A[c]["pop"] for c in D); a89=sum(A[c]["a5074"] for c in D); o89=sum(A[c]["o65"] for c in D)
@@ -52,7 +57,7 @@ for a,b,_,c in pts:
 print("전국 4분면",quad); print("89곳 4분면",q89)
 # 최종 89 표
 tab=[]
-mk=json.load(open("anchor.json",encoding="utf-8"))["mk"]
+mk=json.load(open(os.path.join(RAW, "anchor.json"),encoding="utf-8"))["mk"]
 for c,x in D.items():
     v=A[c]
     tab.append({"code":c,"sido":x["sido"],"sgg":x["sgg"],"pop":v["pop"],
@@ -62,7 +67,7 @@ for c,x in D.items():
       "cov_ns":round(g(Ens,c)/g(Kns,c)*100,1) if g(Kns,c) else 0,
       "market":mk.get(c,0)})
 tab.sort(key=lambda r:-r["old_rate"])
-json.dump(tab,open("table89.json","w",encoding="utf-8"),ensure_ascii=False,indent=1)
+json.dump(tab,open(os.path.join(RAW, "table89.json"),"w",encoding="utf-8"),ensure_ascii=False,indent=1)
 print(f"\n=== 89곳 상위 12 (고령화율 순) ===")
 print(f"{'코드':6s}{'지역':14s}{'인구':>9s}{'65+%':>7s}{'50-74':>8s}{'국문':>6s}{'영문':>6s}{'커버%':>7s}{'시장':>5s}")
 for r in tab[:12]:

@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 import csv,json,io,sys,re,statistics
+
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))          # data/AI
+RAW = os.path.join(HERE, "_raw")                          # 원본·중간 파일 (사람이 안 읽음)
+OUT = os.path.join(os.path.dirname(HERE), "인간")          # 사람이 읽는 산출물
 sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding="utf-8")
-rows=list(csv.reader(open("age_sgg_utf8.csv",encoding="utf-8")))
+rows=list(csv.reader(open(os.path.join(RAW, "age_sgg_utf8.csv"),encoding="utf-8")))
 hdr=rows[0]
 i65=[i for i,h in enumerate(hdr) if re.match(r'.*_계_(6[5-9]|7\d|8\d|9\d)~|.*_계_100세',h)]
 itot=hdr.index([h for h in hdr if h.endswith("_계_총인구수")][0])
@@ -19,7 +24,7 @@ nat=A.get("00000")
 sido={k:v for k,v in A.items() if k[2:]=="000"}
 tp=sum(v["pop"] for v in sido.values()); to=sum(v["old"] for v in sido.values())
 print(f"전국(시도합) 인구 {tp:,} / 65+ {to:,} = {to/tp*100:.2f}%  [2026-08 주민등록]")
-reg=json.load(open("regions.json",encoding="utf-8"))
+reg=json.load(open(os.path.join(RAW, "regions.json"),encoding="utf-8"))
 D=reg["decline"]; I=reg["interest"]
 miss=[x for x in D if x["code"] not in A]
 print("89 unmatched:",miss)
@@ -39,4 +44,4 @@ print(f"89곳 중 고령화율 30% 이상: {sum(1 for x in rr if x>=30)}개 / 40
 d89.sort(key=lambda r:-r[4])
 print("\n고령화율 상위 10");  [print(f"  {r[0]} {r[1][:6]} {r[2]} pop {r[3]:,} {r[4]:.1f}%") for r in d89[:10]]
 print("고령화율 하위 10");   [print(f"  {r[0]} {r[1][:6]} {r[2]} pop {r[3]:,} {r[4]:.1f}%") for r in d89[-10:]]
-json.dump({"age":A,"d89":d89,"d18":d18,"nat":{"pop":tp,"old":to,"rate":to/tp*100}},open("agejoin.json","w",encoding="utf-8"),ensure_ascii=False)
+json.dump({"age":A,"d89":d89,"d18":d18,"nat":{"pop":tp,"old":to,"rate":to/tp*100}},open(os.path.join(RAW, "agejoin.json"),"w",encoding="utf-8"),ensure_ascii=False)

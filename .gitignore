@@ -32,3 +32,23 @@ desktop.ini
 ~$*
 *.tmp
 *.bak
+
+# === 대용량 원본 덤프 (재현 가능) ===
+data/AI/_raw/c1_visitor_raw.json
+
+# === 경계 원본 parquet (vuski/admdongkor 에서 재다운로드 가능) ===
+*.parquet
+
+# === 앱 (app/ 는 C:\Users\chewo\StudioProjects\malgil 을 가리키는 정션) ===
+app/flutter/build/
+app/flutter/.dart_tool/
+app/flutter/.flutter-plugins*
+app/worker/node_modules/
+app/worker/.wrangler/
+app/worker/.dev.vars
+app/worker/dist/
+
+# === 주최측 배포 자료 · 개인 작업 로그 (공개 저장소에 올리지 않음) ===
+default/
+_workspace/
+topik30.html

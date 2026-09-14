@@ -72,14 +72,16 @@ flowchart TB
 
 ## 3. 스택
 
-### 3-1. 확정안 (웹 단독)
+### 3-1. 확정안 (Flutter 단일 코드베이스 · 웹 우선 출시)
+
+> **확정 2026-09-07 (D-11 해소)** — 근거는 기획서 §1-4. 최종 전달 형태가 앱이므로 재작성을 피하기 위해 Flutter를 채택하고, 공모전 제출은 **Flutter Web 빌드**로 낸다. **프론트 층만 교체되고 백엔드 이하는 전부 유지된다.**
 
 | 층 | 선택 | 근거 |
 |---|---|---|
-| 프론트 | **Vite + TypeScript + Preact**(또는 React) | 번들 최소. 첫 페인트 3초 요구 |
-| 상태 | localStorage + 얇은 스토어 | 로그인 없음. 서버 상태 최소 |
-| 스타일 | CSS 변수 + 최소 유틸 | 프레임워크 미도입 |
-| 지도 | **정적 SVG choropleth** (시군구 229) | 외부 SDK 0. 로딩 실패 상태 자체가 없음 |
+| 프론트 | **Flutter (Web 빌드)** — 로컬 **3.44.6 stable / Dart 3.12.2** | 단일 코드베이스에서 Web·Android 동시 산출. 2단계 앱 런치 시 재작성 0 |
+| 상태 | `shared_preferences`(웹은 localStorage 백엔드) + 얇은 스토어 | 로그인 없음. 서버 상태 최소 |
+| 스타일 | Flutter 테마 + 디자인 토큰 | 프레임워크 미도입 원칙은 그대로 |
+| 지도 | **정적 SVG choropleth** (시군구 229) — `flutter_svg` 또는 `CustomPainter` | 외부 SDK 0. 로딩 실패 상태 자체가 없음 |
 | 백엔드 | **Cloudflare Workers + Hono** | 슬립 없음. 콜드스타트 사실상 0 |
 | DB | **Cloudflare D1** | 워커와 동일 플랫폼. 자동 일시정지 없음 |
 | 폰트 | Pretendard 셀프호스팅 (subset) | 외부 CDN 의존 제거 |
@@ -94,15 +96,31 @@ flowchart TB
 | 네이버/카카오 지도 | 무료 한도·대표계정·결제수단 등록 여부 전부 미확인. **첫 화면에 미검증 외부 의존을 두지 않는다** |
 | Fly/Render 파이썬 서버 | 형태소 분석용으로 세우면 무중단 유지 대상이 1→2개 |
 
-### 3-2. D-11 대안 — Flutter 유지 시 (memory.md D-10)
+### 3-2. Flutter Web 적용 시 변경 범위
 
 | 변경되는 것 | 유지되는 것 |
 |---|---|
-| 프론트 = Flutter Web (`--web-renderer canvaskit` 지양, HTML 렌더러 권장) | §4~§10 전부 |
-| choropleth = `flutter_svg` 또는 `CustomPainter` | Workers 프록시·D1·PLL 산출식·API 스펙 |
-| 빌드 산출물을 Workers 정적 자산으로 서빙 | 위치 처리 원칙·저작권 처리 |
+| 프론트 = **Flutter Web 빌드** | **§4~§10 전부** |
+| choropleth = `flutter_svg` 또는 `CustomPainter` | **Workers 프록시 · D1 · PLL 산출식 · API 스펙** |
+| 빌드 산출물(`build/web`)을 **Workers 정적 자산으로 서빙** | 위치 처리 원칙 · 저작권 처리 |
 
-⚠️ **판단 근거** — Flutter Web은 초기 번들이 크고 첫 페인트가 늦다. 말길 화면은 SVG·텍스트·목록 중심이라 Flutter의 이점(복잡한 커스텀 렌더링·네이티브 공유)이 발현되지 않는다. 스토어 제출을 포기하는 순간 Flutter를 유지할 근거가 "이미 세팅했다"뿐인데, 현재 `lib/`에는 **기본 스캐폴드(`main.dart` 1개)밖에 없어 매몰 비용이 0**이다.
+> ✅ **CORS · 키 노출 문제 없음.** 브라우저(Flutter Web)는 Workers 프록시만 호출하고 공사 API를 직접 부르지 않는다. 서비스키는 Workers에 남고, 동일 오리진 서빙이라 CORS 프리플라이트도 발생하지 않는다. **이 구조를 깨고 클라이언트에서 공사 API를 직접 호출하면 키가 그대로 노출된다 — 금지.**
+
+#### 렌더러 — ⚠️ 선택지가 없다
+
+**Flutter 3.44.6에는 `--web-renderer` 플래그가 존재하지 않는다.** HTML 렌더러는 3.29에서 제거됐다(`flutter build web --help` 실측 확인). 남은 선택지는 둘뿐:
+
+| 방식 | 명령 | 비고 |
+|---|---|---|
+| **CanvasKit** (기본) | `flutter build web -O4` | 초기 번들에 CanvasKit 페이로드 포함 |
+| skwasm (WebAssembly) | `flutter build web --wasm` | JS 폴백 있음. 브라우저 지원 편차 → **심사 환경에서 검증 전 채택 금지** |
+
+→ 따라서 **첫 페인트 3초 요구는 렌더러 선택이 아니라 로딩 구간 설계로 지킨다.** 대응 4가지는 기획서 §8-3, 실측은 리스크 9-24.
+
+**필수 조치 2건**
+
+1. **`web/index.html`에 정적 로딩 셸** — 엔진 부팅 전에 순수 HTML/CSS로 스켈레톤을 즉시 페인트. 심사위원이 백지를 보는 구간을 0초로 만든다.
+2. **CanvasKit 셀프호스팅** — `gstatic` CDN 대신 Workers 정적 자산으로 동일 오리진 서빙. §3-1의 "외부 CDN 의존 제거" 원칙과 일관.
 
 ---
 
