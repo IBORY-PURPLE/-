@@ -1,0 +1,45 @@
+# 말길 (Malgil) — Cloudflare Workers 프록시 + 정적 자산 (단일 워커)
+#   Flutter Web ──► /api/*  ──► 공사 TourAPI (KorService2)   ※ 인증키는 워커 Secret에만
+#             └──► /*      ──► [assets] 정적 파일 (SPA 폴백)
+#   cron 00:00 UTC (= KST 09:00) — 개발 기간 내 「매일 실시간 호출 이력」 확보 (TSD §8-2)
+
+name = "malgil"
+main = "src/index.ts"
+# workerd 1.20260911.1 (wrangler 4.131.2 동봉)이 받는 최신 유효 날짜
+compatibility_date = "2026-09-11"
+workers_dev = true
+
+[assets]
+# TODO(B2): Flutter 빌드가 나오면 아래를 "../flutter/build/web" 으로 바꾼다.
+#           (지금은 임시 안내 페이지 public/index.html)
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+# /api/* 는 정적 파일보다 항상 워커가 먼저 받는다 (Flutter 빌드에 api/ 폴더가 생겨도 안전)
+run_worker_first = ["/api/*"]
+
+[triggers]
+crons = ["0 0 * * *"]
+
+# ── 캐시 ──────────────────────────────────────────────────────────────────
+# *.workers.dev 배포에서는 Cache API(caches.default)가 동작하지 않는다(커스텀 도메인 전용).
+# 그래서 워커는 메모리 → KV → Cache API 순으로 캐시를 본다. 배포 후 KV 를 만들어 붙일 것:
+#   npx wrangler kv namespace create MALGIL_CACHE      → 출력된 id 를 아래에 넣고 주석 해제
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "<id>"
+
+# ── 레이트리밋 (IP 별 분당 120 요청) — 누군가 워커 URL 로 공사 한도 1,000/일을 태우는 것을 막는다 ──
+[[ratelimits]]
+name = "API_RL"
+namespace_id = "1001"
+simple = { limit = 120, period = 60 }
+
+[vars]
+KTO_BASE = "https://apis.data.go.kr/B551011"
+# KTO_KEY 는 여기 쓰지 않는다.
+#   로컬:  .dev.vars  (KTO_KEY=...)   ← .gitignore
+#   운영:  npx wrangler secret put KTO_KEY
+
+[observability]
+enabled = true
