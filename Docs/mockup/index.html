@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>말길 목업 · index</title>
+<link rel="stylesheet" href="m3.css">
+<style>
+  body { background: #f4f4f6; }
+  main { max-width: 900px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font: 400 28px/36px var(--font); margin: 0 0 4px; }
+  h2 { font: 500 18px/24px var(--font); margin: 32px 0 8px; }
+  table { border-collapse: collapse; width: 100%; font: 400 13px/20px var(--font); background: #fff; }
+  th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: #edeef3; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .grid a { display: block; text-decoration: none; color: inherit; }
+  code { background: #edeef3; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>말길 목업 <span class="body-medium muted">Flutter Web · Material 3 로 만들었을 때의 화면</span></h1>
+  <div class="body-medium muted">2026-09-14 · 파일을 더블클릭해서(file://) 열립니다. 외부 CDN 없음. UI는 영어, 콘텐츠(지명·장소명·메뉴)는 한국어 원문.</div>
+
+  <div class="mock-note" style="margin-top:16px">
+    <b>지도 데이터</b>는 <code>data.js</code>(<code>python data/AI/build_app_assets.py --mockup</code> 산출)를 읽습니다. 없으면 지도 자리에 안내가 뜹니다.
+    장소 목록·상세는 <code>fixtures/</code>의 실호출 표본(대구 남구 · 2026-09-14)을 씁니다 — 앱에서는 매번 실시간 호출입니다.
+  </div>
+
+  <h2>화면 (골든패스 순서)</h2>
+  <div class="grid">
+    <a class="card elevated" href="01_landing.html"><div class="title-medium">01 · Landing / Choose your level</div><div class="body-small muted">급수 카드 4장 · Judge preview(Lv3)</div></a>
+    <a class="card elevated" href="02_map.html?demo=1"><div class="title-medium">02 · Level map</div><div class="body-small muted">레벨 카드 · 시군구 색칠 지도 · 89곳 · 지역 시트</div></a>
+    <a class="card elevated" href="03_places.html?code=27200&name=%EB%82%A8%EA%B5%AC&lv=Lv3"><div class="title-medium">03 · Places (live)</div><div class="body-small muted">유형 칩 · 대분류 칩 · 이미지 규칙</div></a>
+    <a class="card elevated" href="04_place.html"><div class="title-medium">04 · Place detail</div><div class="body-small muted">Korean you'll use here · 말벗 · 방문 기록</div></a>
+    <a class="card elevated" href="05_states.html"><div class="title-medium">05 · State gallery</div><div class="body-small muted">로딩 · 빈 필터 · 오류 · 한도 · 잠김 · 제외 · 보류</div></a>
+  </div>
+
+  <h2>Flutter 대응표 (목업 컴포넌트 <code>data-flutter</code> 속성 = 위젯명)</h2>
+  <table>
+    <tr><th>목업</th><th>Flutter</th><th>비고</th></tr>
+    <tr><td><code>.top-app-bar</code></td><td>AppBar / SliverAppBar</td><td></td></tr>
+    <tr><td><code>.btn.filled / .tonal / .outlined / .text</code></td><td>FilledButton / FilledButton.tonal / OutlinedButton / TextButton</td><td>높이 40 · pill</td></tr>
+    <tr><td><code>.chip(.selected)</code></td><td>FilterChip</td><td>선택 시 ✓ + secondary-container</td></tr>
+    <tr><td><code>.segmented</code></td><td>SegmentedButton&lt;int&gt;</td><td>급수 즉시 전환</td></tr>
+    <tr><td><code>.card / .elevated / .outlined / .selectable</code></td><td>Card / Card.elevated / Card.outlined + InkWell</td><td>모서리 12</td></tr>
+    <tr><td><code>.list-item + .thumb</code></td><td>ListTile + KtoImage</td><td>KtoImage = 앱 유일 이미지 위젯: cpyrhtDivCd≠Type1 → contain, 출처 캡션 자동</td></tr>
+    <tr><td><code>.sheet</code></td><td>showModalBottomSheet → RegionSheet</td><td>데스크톱 ≥840px 에서는 우측 패널</td></tr>
+    <tr><td><code>svg.choropleth</code></td><td>CustomPaint(ChoroplethPainter) + Path.contains 히트테스트</td><td>자산 JSON의 정수 좌표 링</td></tr>
+    <tr><td><code>.lv.lv3/.lv4/.lv5/.lv12/.hold/.excluded</code></td><td>LevelChip</td><td>색 = tokens.dart</td></tr>
+    <tr><td><code>.banner / .banner.error</code></td><td>MaterialBanner</td><td>한도 · 오류</td></tr>
+    <tr><td><code>.skeleton</code></td><td>StateViews.loading (shimmer)</td><td></td></tr>
+    <tr><td><code>.footer-source</code></td><td>SourceFooter</td><td>산출일 + 출처 ⓒ한국관광공사</td></tr>
+  </table>
+
+  <h2>토큰 (m3.css ↔ tokens.dart 동일 값)</h2>
+  <table>
+    <tr><th>역할</th><th>hex</th><th>역할</th><th>hex</th></tr>
+    <tr><td>primary</td><td>#2a5a8c</td><td>primary-container</td><td>#d3e3fd</td></tr>
+    <tr><td>secondary-container</td><td>#d8e3f8</td><td>surface</td><td>#f9f9fc</td></tr>
+    <tr><td>surface-container-low</td><td>#f3f4f9</td><td>outline</td><td>#74777f</td></tr>
+    <tr><td>map Lv3</td><td>#86b6ef</td><td>map Lv4</td><td>#2a78d6</td></tr>
+    <tr><td>map Lv5</td><td>#104281</td><td>map Lv1~2 (any level)</td><td>#e1e0d9</td></tr>
+    <tr><td>locked</td><td>white + 45° hatch #898781</td><td>89곳 outline</td><td>#191c20 · 1.6px</td></tr>
+  </table>
+  <div class="body-small muted" style="margin-top:8px">순차 램프(파랑 250/450/650)는 dataviz 검증 스크립트 <code>--ordinal</code> 통과. 잠김·제외·보류는 색이 아니라 패턴(빗금·점선·파선)으로도 구분되게 했습니다(색각 대응).</div>
+
+  <h2>문구 규칙 (기획서 §4-4)</h2>
+  <ul class="body-medium">
+    <li>수치는 개수·「1,000명 중 N명」·「10명 중 N명」만 — 「N%」「Lv0」「Lv6」 없음</li>
+    <li>잠긴 지역: <i>Opens at Lv4 — you can still visit; expect Korean for transport and ordering</i> (「갈 수 없음」 금지)</li>
+    <li>생활인구: <i>생활인구로 산정되는 것과 같은 형태의 체류입니다</i> + 각주 (「법정 요건 충족」 금지)</li>
+    <li>모든 수치에 산출일 · 이미지에 <i>출처: ⓒ한국관광공사</i></li>
+  </ul>
+</main>
+</body>
+</html>

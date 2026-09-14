@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malgil · Places (mockup)</title>
+<link rel="stylesheet" href="m3.css">
+<style>
+  .hdr { padding: 12px 16px 4px; }
+  .live { display: inline-flex; align-items: center; gap: 6px; font: 500 11px/16px var(--font); color: var(--md-sys-color-on-surface-variant); }
+  .live .dot { width: 8px; height: 8px; border-radius: 50%; background: #0ca30c; }
+</style>
+</head>
+<body>
+<div class="frame-wrap">
+<div class="frame">
+  <div class="top-app-bar" data-flutter="AppBar">
+    <a class="icon-btn" href="02_map.html" title="Back">←</a>
+    <div class="title"><div class="title-large ko" id="region-name">대구 남구</div></div>
+    <a class="icon-btn" href="index.html" title="Mockup index">☰</a>
+  </div>
+  <div class="content">
+    <div class="hdr row">
+      <span class="lv" id="region-lv">Lv3</span>
+      <span class="body-small muted" id="why">Metropolitan district · Foreign visitors 7 in 1,000</span>
+    </div>
+    <div class="hdr row">
+      <span class="live"><span class="dot"></span> Live · fetched <span id="fetched"></span> · 출처: ⓒ한국관광공사</span>
+    </div>
+    <div class="chip-row" id="types" data-flutter="FilterChip row (contentTypeId)"></div>
+    <div class="chip-row" id="cats" data-flutter="FilterChip row (lclsSystm1)"></div>
+    <div id="list" data-flutter="ListView.builder → PlaceCard (ListTile + KtoImage)"></div>
+  </div>
+</div>
+</div>
+<script src="fixtures/places_27200.js"></script>
+<script src="mockup.js"></script>
+<script>
+MK.toolbar();
+const q = new URLSearchParams(location.search);
+if (q.get('name')) document.getElementById('region-name').textContent = q.get('name');
+if (q.get('lv')) { const e = document.getElementById('region-lv'); e.textContent = q.get('lv'); e.className = 'lv ' + ({ 'Lv1~2': 'lv12', 'Lv3': 'lv3', 'Lv4': 'lv4', 'Lv5': 'lv5' }[q.get('lv')] || 'hold'); }
+const F = window.FIXTURE_PLACES;
+document.getElementById('fetched').textContent = F.fetchedAt.slice(11);
+const TYPE = { '': 'All', '12': 'Sights', '14': 'Culture', '15': 'Festivals', '39': 'Food' };
+const CAT = { 'FD': 'Food', 'HS': 'History', 'NA': 'Nature', 'VE': 'Culture', 'EX': 'Experience', 'LS': 'Leisure', 'EV': 'Events', 'AC': 'Stay', 'C01': 'Course' };
+let type = '', cat = '';
+function chips(el, map, cur, keys, on) {
+  el.innerHTML = keys.map(k => `<button class="chip ${cur===k?'selected':''}" data-k="${k}">${map[k] || k}</button>`).join('');
+  el.onclick = e => { const b = e.target.closest('.chip'); if (b) on(b.dataset.k); };
+}
+function draw() {
+  chips(document.getElementById('types'), TYPE, type, Object.keys(TYPE), k => { type = k; draw(); });
+  const cats = ['', ...new Set(F.items.map(i => i.lclsSystm1).filter(Boolean))];
+  chips(document.getElementById('cats'), Object.assign({ '': 'Any topic' }, CAT), cat, cats, k => { cat = k; draw(); });
+  const items = F.items.filter(i => (!type || String(i.contenttypeid) === type) && (!cat || i.lclsSystm1 === cat));
+  const list = document.getElementById('list');
+  if (!items.length) { list.innerHTML = `<div class="pad stack" style="text-align:center;padding-top:40px"><div class="title-medium">No places listed in this category</div><div class="body-medium muted">Try another filter — nothing is broken.</div><button class="btn text" onclick="type='';cat='';draw()">Show all</button></div>`; return; }
+  list.innerHTML = items.map(i => {
+    const img = i.firstimage || i.firstimage2;
+    const contain = i.cpyrhtDivCd && i.cpyrhtDivCd !== 'Type1';
+    const thumb = img ? `<div class="thumb ${contain ? 'contain' : ''}" data-flutter="KtoImage"><img src="${img}" alt=""><span class="src">ⓒ한국관광공사</span></div>`
+                      : `<div class="thumb text-hero" data-flutter="KtoImage (no image)">${CAT[i.lclsSystm1] || TYPE[String(i.contenttypeid)]}</div>`;
+    return `<a class="list-item" href="04_place.html?id=${i.contentid}" style="text-decoration:none;color:inherit">
+      ${thumb}
+      <div style="min-width:0"><div class="title-medium ko" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i.title}</div>
+      <div class="body-small muted ko">${i.addr1}</div>
+      <div class="label-small muted" style="margin-top:4px">${TYPE[String(i.contenttypeid)]}${i.lclsSystm2 ? ' · ' + i.lclsSystm2 : ''}</div></div>
+    </a>`;
+  }).join('') + `<div class="footer-source">${items.length} of ${F.totalCount} listings (shopping excluded) · areaBasedList2 · fetched ${F.fetchedAt}</div>`;
+}
+draw();
+</script>
+</body>
+</html>

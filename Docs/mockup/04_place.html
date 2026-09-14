@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malgil · Place (mockup)</title>
+<link rel="stylesheet" href="m3.css">
+<style>
+  .info dt { font: 500 12px/16px var(--font); color: var(--md-sys-color-on-surface-variant); margin-top: 10px; }
+  .info dd { margin: 2px 0 0; font: 400 14px/20px var(--font); }
+  .overview { max-height: 96px; overflow: hidden; position: relative; }
+  .overview.open { max-height: none; }
+  .overview:not(.open)::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(transparent, var(--md-sys-color-surface)); }
+</style>
+</head>
+<body>
+<div class="frame-wrap">
+<div class="frame">
+  <div class="top-app-bar" data-flutter="SliverAppBar">
+    <a class="icon-btn" href="03_places.html" title="Back">←</a>
+    <div class="title title-large">Place</div>
+    <a class="icon-btn" href="index.html" title="Mockup index">☰</a>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+</div>
+<script src="fixtures/place_detail.js"></script>
+<script src="mockup.js"></script>
+<script>
+MK.toolbar();
+const D = window.FIXTURE_DETAIL, c = D.common, it = D.intro;
+const img = c.firstimage || c.firstimage2;
+const contain = c.cpyrhtDivCd && c.cpyrhtDivCd !== 'Type1';
+const menu = [it.firstmenu, it.treatmenu].filter(Boolean).join(' / ').split(/[\/,·]/).map(s => s.replace(/등$/, '').trim()).filter(s => s && s.length < 20);
+const html = `
+  ${img ? `<div class="hero" data-flutter="KtoImage"><img src="${img}" alt="" style="object-fit:${contain ? 'contain' : 'cover'}"><span class="src">ⓒ한국관광공사${contain ? ' · 변경금지(Type3)' : ''}</span></div>` : ''}
+  <div class="pad stack">
+    <div>
+      <div class="headline-small ko">${c.title}</div>
+      <div class="body-medium muted ko">${c.addr1 || ''} ${c.addr2 || ''}</div>
+    </div>
+    <div class="row"><span class="lv lv3" data-flutter="Chip">This region: Lv3</span><a class="btn text" href="02_map.html">why ▸</a></div>
+
+    ${menu.length ? `<div class="card elevated" data-flutter="KoreanHereCard">
+      <div class="title-medium">Korean you'll use here</div>
+      <div class="body-small muted" style="margin:2px 0 12px">From the menu as listed (firstmenu · treatmenu). Nothing invented.</div>
+      <div>${menu.map(m => `<span class="phrase ko">${m}</span>`).join('')}</div>
+      <div class="body-small muted" style="margin-top:8px">Try: <span class="ko">「${menu[0]} 하나 주세요」</span> · <span class="ko">「이거 얼마예요?」</span></div>
+    </div>` : ''}
+
+    <div class="card" data-flutter="Card">
+      <div class="title-medium">About</div>
+      <div class="overview body-medium ko" id="ov">${(c.overview || '').replace(/<br\s*\/?>/gi, ' ')}</div>
+      <button class="btn text" onclick="document.getElementById('ov').classList.toggle('open');this.textContent=this.textContent==='Read more'?'Show less':'Read more'">Read more</button>
+    </div>
+
+    <dl class="info card outlined" data-flutter="Card.outlined" style="margin:0">
+      ${it.opentimefood ? `<dt>Hours</dt><dd class="ko">${it.opentimefood}</dd>` : ''}
+      ${it.restdatefood ? `<dt>Closed</dt><dd class="ko">${it.restdatefood}</dd>` : ''}
+      ${it.parkingfood ? `<dt>Parking</dt><dd class="ko">${it.parkingfood}</dd>` : ''}
+      ${it.infocenterfood ? `<dt>Phone</dt><dd>${it.infocenterfood}</dd>` : ''}
+      ${it.reservationfood ? `<dt>Reservation</dt><dd class="ko">${it.reservationfood}</dd>` : ''}
+    </dl>
+
+    <div class="card outlined" data-flutter="Card.outlined">
+      <div class="title-small">Local companion</div>
+      <div class="body-medium muted" style="margin-top:4px">Recruiting in this area — a resident who has lived here 10+ years, talking with you in Korean. Not a tour; no price, no booking here.</div>
+      <a class="btn text" data-flutter="TextButton.icon" href="https://www.kctg.or.kr" target="_blank" rel="noopener">Licensed interpreter booking (kctg.or.kr) ↗</a>
+    </div>
+
+    <label class="check body-medium" data-flutter="CheckboxListTile"><input type="checkbox"> I visited here (self-reported, stays on this device)</label>
+  </div>
+  <div class="footer-source">Fetched ${D.fetchedAt} · detailCommon2 + detailIntro2 · 출처: ⓒ한국관광공사 · nothing stored on our server</div>`;
+document.getElementById('content').innerHTML = html;
+</script>
+</body>
+</html>
