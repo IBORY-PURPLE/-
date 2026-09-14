@@ -63,6 +63,47 @@ abstract final class S {
   static String quotaNote(String asOf) =>
       'Map and level card are unaffected — they use bundled public data computed $asOf.';
 
+  // ── 지도 화면 (02_map.html) ──
+  static const String yourMap = 'Your map';
+  static const String openNow = 'Open now ';
+  static String ofRegions(int total) => ' of $total regions';
+  static const String depopPrefix = 'Depopulation areas: ';
+  static String depopSuffix(int total89) => ' of $total89 open';
+  static String atNextLevel(String lvLabel) => 'At $lvLabel: ';
+  static String plusRegions(int delta) => '+$delta';
+  static const String regionsDash = ' regions — ';
+  static const String everyRegionOpen = 'Every region is open at this level.';
+  static const String provinceHint = 'Province';
+  static const String districtHint = 'District';
+  static const String toggle89 = '89 depopulation areas';
+  static const String legendAnyLevel = 'Any level (foreign visitors already come)';
+  static const String legendLocked = 'Opens at a higher level';
+  static const String legend89 = 'Depopulation area (89)';
+  static const String legendHold = 'On hold (reorganized 2026-07)';
+  static const String legendExcluded = 'Not enough data';
+  static const String legendNote =
+      'Colour = the TOPIK level at which a region opens, from public visitor and population data. Not a measure of on-site foreign-language service.';
+  static const String pickRegionHint = 'Tap a region on the map, or pick a district above, to see its details.';
+
+  // ── 지역 시트 (mockup.js fillSheet) ──
+  static String computedSource(String asOf) => 'Computed $asOf · 출처: ⓒ한국관광공사 · 행정안전부 주민등록 인구';
+  static const String placesLive = 'Places · live';
+  static const String localCompanion = 'Local companion';
+  static const String localCompanionBody = 'Recruiting in this area. Until then, book a licensed cultural tourism interpreter.';
+  static const String openKctg = 'Open kctg.or.kr ↗';
+  static const String kctgUrl = 'https://www.kctg.or.kr';
+  static const String stayedToday = 'I stayed here today (self-reported)';
+  static String nthStay(int n, String nm) => 'This is your ${ordinal(n)} stay in $nm';
+  static const String stayNoteKo1 = '생활인구로 산정되는 것과 같은 형태의 체류입니다.';
+  static const String stayNoteKo2 = '본 지표는 행정안전부 생활인구 산정 결과가 아니며, 사용자가 스스로 확인하도록 만든 자체 지표입니다.';
+
+  /// 1st · 2nd · 3rd · 4th … 11th · 12th · 13th · 21st
+  static String ordinal(int n) {
+    final r100 = n % 100;
+    if (r100 >= 11 && r100 <= 13) return '${n}th';
+    return switch (n % 10) { 1 => '${n}st', 2 => '${n}nd', 3 => '${n}rd', _ => '${n}th' };
+  }
+
   // ── 자리표시 화면 ──
   static const String comingSoon = 'Coming in the next build';
   static const String currentLevel = 'Your level';
