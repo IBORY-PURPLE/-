@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 import json,collections,io,sys,statistics
+
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))          # data/AI
+RAW = os.path.join(HERE, "_raw")                          # 원본·중간 파일 (사람이 안 읽음)
+OUT = os.path.join(os.path.dirname(HERE), "인간")          # 사람이 읽는 산출물
 sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding="utf-8")
-d=json.load(open("dump.json",encoding="utf-8"))
-reg=json.load(open("regions.json",encoding="utf-8"))
-cn=json.load(open("code_name.json",encoding="utf-8"))
+d=json.load(open(os.path.join(RAW, "dump.json"),encoding="utf-8"))
+reg=json.load(open(os.path.join(RAW, "regions.json"),encoding="utf-8"))
+cn=json.load(open(os.path.join(RAW, "code_name.json"),encoding="utf-8"))
 D={x["code"]:x for x in reg["decline"]}; I={x["code"]:x for x in reg["interest"]}
 def key(r):
     a=(r.get("lDongRegnCd") or "")+(r.get("lDongSignguCd") or ""); return a if len(a)==5 else None
@@ -54,4 +59,4 @@ q1=allr[:len(allr)//4]
 print(f"전국 하위25%({len(q1)}개) 중 89곳: {sum(1 for _,c in q1 if c in D)}개")
 q4=allr[-len(allr)//4:]
 print(f"전국 상위25%({len(q4)}개) 중 89곳: {sum(1 for _,c in q4 if c in D)}개")
-json.dump({"K":dict(K),"E":dict(E),"Kns":dict(Kns),"Ens":dict(Ens),"trs":dict(trs),"mk":dict(mk)},open("deep.json","w",encoding="utf-8"),ensure_ascii=False)
+json.dump({"K":dict(K),"E":dict(E),"Kns":dict(Kns),"Ens":dict(Ens),"trs":dict(trs),"mk":dict(mk)},open(os.path.join(RAW, "deep.json"),"w",encoding="utf-8"),ensure_ascii=False)

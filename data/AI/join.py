@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import json,collections,io,sys
 sys.stdout=io.TextIOWrapper(sys.stdout.buffer,encoding="utf-8")
-d=json.load(open("dump.json",encoding="utf-8"))
-reg=json.load(open("regions.json",encoding="utf-8"))
-cn=json.load(open("code_name.json",encoding="utf-8"))
+d=json.load(open(os.path.join(RAW, "dump.json"),encoding="utf-8"))
+reg=json.load(open(os.path.join(RAW, "regions.json"),encoding="utf-8"))
+cn=json.load(open(os.path.join(RAW, "code_name.json"),encoding="utf-8"))
 def key(r):
     a=(r.get("lDongRegnCd") or "")+(r.get("lDongSignguCd") or "")
     return a if len(a)==5 else None
@@ -66,7 +66,12 @@ n89=sum(1 for r in allrows if r[6])
 print(f"\n국문50건이상 시군구 {len(allrows)}개 중 89곳 {n89}개")
 # 중앙값
 import statistics
+
+import os
+HERE = os.path.dirname(os.path.abspath(__file__))          # data/AI
+RAW = os.path.join(HERE, "_raw")                          # 원본·중간 파일 (사람이 안 읽음)
+OUT = os.path.join(os.path.dirname(HERE), "인간")          # 사람이 읽는 산출물
 d89=[r[5] for r in allrows if r[6]]; dno=[r[5] for r in allrows if not r[6] and not r[7]]
 print(f"커버율 중앙값 89곳={statistics.median(d89):.2f}% / 비89비관심={statistics.median(dno):.2f}%")
 print(f"커버율 평균(단순) 89곳={statistics.mean(d89):.2f}% / 비89비관심={statistics.mean(dno):.2f}%")
-json.dump({"summary":res,"rows89":rows,"allrows":allrows},open("join_result.json","w",encoding="utf-8"),ensure_ascii=False,indent=1)
+json.dump({"summary":res,"rows89":rows,"allrows":allrows},open(os.path.join(RAW, "join_result.json"),"w",encoding="utf-8"),ensure_ascii=False,indent=1)
